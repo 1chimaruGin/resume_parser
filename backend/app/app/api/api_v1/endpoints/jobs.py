@@ -1,16 +1,23 @@
-from typing import Any, List
-
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
-from app import crud, models, schemas
+import base64
+import numpy as np
+from io import BytesIO
+from PIL import Image
 from app.api import deps
+from app import crud, models, schemas
+from app.core.celery_app import celery_app
+from app.lib.match import Matcher
+
+from typing import Any, List
+from sqlalchemy.orm import Session
+from pdf2image import convert_from_bytes
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[schemas.Application])
-def read_applications(
+async def read_applications(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
@@ -31,16 +38,41 @@ def read_applications(
 @router.post("/", response_model=schemas.Application)
 def create_application(
     *,
+    file: UploadFile = File(...),
+    job_description: str = "",
     db: Session = Depends(deps.get_db),
-    application_in: schemas.ApplicationCreate,
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Create new application.
     """
-    application = crud.application.create_with_owner(db=db, obj_in=application_in, owner_id=current_user.id)
-    return application
+    file_content = file.file.read()
+    images = []
 
+    if "image" in file.content_type:
+        image = Image.open(BytesIO(file_content))
+        images.append(image)
+    elif "pdf" in file.content_type:
+        images = convert_from_bytes(file_content)
+
+    matcher = Matcher()
+    encs = []
+    for image in images:
+        buffered = BytesIO()
+        image.save(buffered, format="png")
+        encs.append(base64.b64encode(buffered.getvalue()).decode())
+    resume, simi, records = matcher.process(images, job_description)
+    print(simi)
+    print(records)
+    is_ready = True
+    name = "John Doe"
+    obj_in = schemas.ApplicationCreate(name=name, resumes=encs, resume_text=resume, job_description=job_description, records=records, is_ready=is_ready)
+    application = crud.application.create_with_owner(
+        db=db, 
+        obj_in=obj_in,
+        owner_id=current_user.id
+    )
+    return application
 
 @router.put("/{id}", response_model=schemas.Application)
 def update_application(
@@ -97,3 +129,8 @@ def delete_application(
         raise HTTPException(status_code=400, detail="Not enough permissions")
     application = crud.application.remove(db=db, id=id)
     return application
+
+
+@router.post("/upload")
+def upload(resume: UploadFile = File(...)) -> Any:
+    pass
