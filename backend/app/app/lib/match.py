@@ -2,12 +2,12 @@ import base64
 from io import BytesIO
 from PIL import Image
 from typing import List
-from app.lib.models import ModelHandler
+# from app.lib.models import ModelHandler
 from app.lib.apis import APIHandler
 
 class Matcher:
     def __init__(self) -> None:
-        self.model_handler = ModelHandler()
+        # self.model_handler = ModelHandler()
         self.api_handler = APIHandler()
     
     @staticmethod
@@ -28,12 +28,9 @@ class Matcher:
             float: Similarity score.
             str: Details of resume.
         """
-        images = [self.base64_to_image(img) for img in images]
-        print("step 1 done")
-        resume = self.model_handler.get_text_from_image(images)
-        print("step 2 done")
+        # resume = self.model_handler.get_text_from_image(images)
+        resume = self.api_handler.extract_text(images)
         similarity_score = self.api_handler.get_similarity(job_description, resume)
-        print("step 3 done")
         details = self.api_handler.get_details(job_description, resume)
         return resume, similarity_score, details
         

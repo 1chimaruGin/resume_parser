@@ -1,18 +1,18 @@
-# FROM python:3.9
-FROM 1chimarugin/torchapi:latest
+FROM python:3.9
+# FROM 1chimarugin/torchapi:latest
 
 WORKDIR /app/
 
-# # Install Poetry
-# RUN pip install poetry
-# # ADD pyproject.toml poetry.lock /code/
-# # Copy poetry.lock* in case it doesn't exist in the repo
-# COPY ./app/pyproject.toml ./app/poetry.lock* /app/
-# RUN poetry config virtualenvs.create false && poetry config installer.max-workers 10
-# RUN poetry install --no-root
+# Install Poetry
+RUN pip install poetry
+# ADD pyproject.toml poetry.lock /code/
+# Copy poetry.lock* in case it doesn't exist in the repo
+COPY ./app/pyproject.toml ./app/poetry.lock* /app/
+RUN poetry config virtualenvs.create false && poetry config installer.max-workers 10
+RUN poetry install --no-root
 
-# COPY ./requirements.txt /app/requirements.txt
-# RUN pip install -r /app/requirements.txt
+COPY ./requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
 
 # Allow installing dev dependencies to run tests
 # ARG INSTALL_DEV=false

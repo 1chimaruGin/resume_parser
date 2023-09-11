@@ -5,9 +5,7 @@ from typing import Optional, Dict, Any, List
 
 class ApplicationBase(BaseModel):
     name: Optional[str]
-    files: Optional[List[str]]
-    resume_text: Optional[str]
-    job_description: Optional[str]
+    score: Optional[float]
     records: Optional[Dict[Any, Any]]
     is_ready: bool
 

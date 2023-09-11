@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.9
 # FROM tiangolo/python-machine-learning:cuda9.1-python3.7
 # FROM 1chimarugin/torchapi:latest
 

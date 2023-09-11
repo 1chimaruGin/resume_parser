@@ -15,8 +15,10 @@ def test_celery(word: str) -> str:
 def process_resume(images: Image.Image, job_description) -> str:
     print("The task received")
     resume, simi, records = _matcher.process(images, job_description)
+    print(simi)
+    print("The records is ", records)
     return {
         "resume": resume,
-        "simiarity": simi,
+        "similarity": simi,
         "records": records
     }

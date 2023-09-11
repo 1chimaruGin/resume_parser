@@ -56,24 +56,24 @@ def create_application(
         images.append(image)
     elif "pdf" in file.content_type:
         images = convert_from_bytes(file_content)
-    print("We are here ...........")
     encs = [image_to_base64(img) for img in images]
     task = celery_app.send_task(
         "app.worker.process_resume", 
         args=[encs, job_description]
     )
-    print("We are still exist ...")
-    resume, simi, records = task.get()
-    print(f" The task result is: {resume}, {simi}, {records}")
-    # is_ready = True
-    # name = "John Doe"
-    # obj_in = schemas.ApplicationCreate(name=name, resumes=encs, resume_text=resume, job_description=job_description, records=records, is_ready=is_ready)
-    # application = crud.application.create_with_owner(
-    #     db=db, 
-    #     obj_in=obj_in,
-    #     owner_id=current_user.id
-    # )
-    # return application
+    result = task.get()
+    resume = result["resume"]
+    records = {"records": result["records"]}
+    score = result["similarity"]
+    is_ready = True
+    name = "John Doe"
+    obj_in = schemas.ApplicationCreate(name=name, resumes=encs, resume_text=resume, job_description=job_description, score=score, records=records, is_ready=is_ready)
+    application = crud.application.create_with_owner(
+        db=db, 
+        obj_in=obj_in,
+        owner_id=current_user.id
+    )
+    return application
     
 
 @router.put("/{id}", response_model=schemas.Application)
@@ -131,11 +131,3 @@ def delete_application(
         raise HTTPException(status_code=400, detail="Not enough permissions")
     application = crud.application.remove(db=db, id=id)
     return application
-
-
-@router.post("/test")
-def upload(resume: UploadFile = File(...)) -> Any:
-    task = celery_app.send_task("app.worker.test_celery", args=[resume.filename])
-    print(f"The task result is: {task.get()}")
-    return {"msg": "Word received"}
-    
