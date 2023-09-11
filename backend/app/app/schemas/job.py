@@ -1,5 +1,6 @@
 import uuid
 from pydantic import BaseModel
+from fastapi import File, UploadFile
 from typing import Optional, Dict, Any, List
 
 class ApplicationBase(BaseModel):
@@ -28,3 +29,6 @@ class Application(ApplicationInDBBase):
 
 class ApplicationInDB(ApplicationInDBBase):
     pass
+
+class JobDescrition(BaseModel):
+    job_description: str = ""

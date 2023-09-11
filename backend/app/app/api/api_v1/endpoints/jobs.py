@@ -1,20 +1,21 @@
 import base64
-import numpy as np
 from io import BytesIO
 from PIL import Image
 from app.api import deps
 from app import crud, models, schemas
 from app.core.celery_app import celery_app
-from app.lib.match import Matcher
-
 from typing import Any, List
 from sqlalchemy.orm import Session
 from pdf2image import convert_from_bytes
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 
 
 router = APIRouter()
 
+def image_to_base64(img):
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 @router.get("/", response_model=List[schemas.Application])
 async def read_applications(
@@ -39,7 +40,7 @@ async def read_applications(
 def create_application(
     *,
     file: UploadFile = File(...),
-    job_description: str = "",
+    job_description: str = Form(...),
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
@@ -47,6 +48,7 @@ def create_application(
     Create new application.
     """
     file_content = file.file.read()
+    job_description = job_description
     images = []
 
     if "image" in file.content_type:
@@ -54,25 +56,25 @@ def create_application(
         images.append(image)
     elif "pdf" in file.content_type:
         images = convert_from_bytes(file_content)
-
-    matcher = Matcher()
-    encs = []
-    for image in images:
-        buffered = BytesIO()
-        image.save(buffered, format="png")
-        encs.append(base64.b64encode(buffered.getvalue()).decode())
-    resume, simi, records = matcher.process(images, job_description)
-    print(simi)
-    print(records)
-    is_ready = True
-    name = "John Doe"
-    obj_in = schemas.ApplicationCreate(name=name, resumes=encs, resume_text=resume, job_description=job_description, records=records, is_ready=is_ready)
-    application = crud.application.create_with_owner(
-        db=db, 
-        obj_in=obj_in,
-        owner_id=current_user.id
+    print("We are here ...........")
+    encs = [image_to_base64(img) for img in images]
+    task = celery_app.send_task(
+        "app.worker.process_resume", 
+        args=[encs, job_description]
     )
-    return application
+    print("We are still exist ...")
+    resume, simi, records = task.get()
+    print(f" The task result is: {resume}, {simi}, {records}")
+    # is_ready = True
+    # name = "John Doe"
+    # obj_in = schemas.ApplicationCreate(name=name, resumes=encs, resume_text=resume, job_description=job_description, records=records, is_ready=is_ready)
+    # application = crud.application.create_with_owner(
+    #     db=db, 
+    #     obj_in=obj_in,
+    #     owner_id=current_user.id
+    # )
+    # return application
+    
 
 @router.put("/{id}", response_model=schemas.Application)
 def update_application(
@@ -131,6 +133,9 @@ def delete_application(
     return application
 
 
-@router.post("/upload")
+@router.post("/test")
 def upload(resume: UploadFile = File(...)) -> Any:
-    pass
+    task = celery_app.send_task("app.worker.test_celery", args=[resume.filename])
+    print(f"The task result is: {task.get()}")
+    return {"msg": "Word received"}
+    

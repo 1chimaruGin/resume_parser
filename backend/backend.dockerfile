@@ -1,6 +1,6 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
 # FROM tiangolo/python-machine-learning:cuda9.1-python3.7
-# FROM fastapi-pytorch
+# FROM 1chimarugin/torchapi:latest
 
 RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 poppler-utils  -y
 

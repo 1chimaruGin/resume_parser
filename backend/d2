@@ -1,0 +1,24 @@
+FROM pytorch/pytorch:1.12.0-cuda11.3-cudnn8-runtime
+
+RUN rm -rf /opt/conda && export DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    wget \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    poppler-utils && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y python3.8 python3.8-distutils python3.8-venv && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1 && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN wget https://bootstrap.pypa.io/get-pip.py && \
+    python get-pip.py && \
+    rm get-pip.py
+# Optionally, symlink python3.8 to python so you can use "python" command for python3.8
+RUN ln -s /usr/bin/python3.8 /usr/bin/python
