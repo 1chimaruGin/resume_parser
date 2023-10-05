@@ -12,6 +12,14 @@
               <v-list-tile-title>Dashboard</v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
+          <v-list-tile to="/home">
+            <v-list-tile-action>
+              <v-icon>home</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>Scan Resume</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
           <v-list-tile to="/main/profile/view">
             <v-list-tile-action>
               <v-icon>person</v-icon>
