@@ -1,0 +1,165 @@
+ PERSONAL PROFILE
+An Al engineer with 3 years
+experience in development and
+deployment of ML/DL applications.
+A competitive coder and highly
+experienced Computer Vision,
+Speech, model optimization for
+both GPU and CPU.
+AREAS OF EXPERTISE
+• Python
+●
+• C, C++
+●
+●
+●
+●
+●
+●
+●
+●
+●
+• Linux
+●
+Pytorch
+CUDA C++
+●
+TensorRT, OpenVino
+Quantization
+Computer Vision, Speech, NLP
+●
+3D reconstruction
+Hugging face transfomers
+Git, Github, Docker
+Django, Flask
+OTHER SKILLS
+AWS, GCP
+shell/bash scripts
+Communication
+Highly creative
+Teamwork
+Leadership
+Excellent problem solver
+AI ENGINEER
+KYI THAR HEIN
+GET IN CONTACT
+Mobile: +959792772885
+www.linkedin.com/in/kyi-thar-hein
+●
+ADDRESS
+Building No (823), Kyaung Kone 3rd street, Hlaing tsp, Yangon, Myanmar
+●
+WORK EXPERIENCE
+MID LEVEL AI ENGINEER/DATA SCIENTIST
+Bagan Innovation Technology (Full time) | July 2021 - Present
+●
+●
+●
+●
+●
+●
+www.kaggle.com/ichimarugin
+www.github.com/1chimaruGin
+MID LEVEL AI ENGINEER
+Metro Computer Myanmar-Japan (Full time) | July 2020 - Jun 2021
+●
+●
+Develop automatic speech recognition system for Burmese.
+Develop ASR api for general purpose and domain specific
+projects.
+Experience in ASR, Speech to Text, Name Entity Recognition and
+speaker diarization.
+Work closely with team members and make the system to have
+highest efficiency and performance.
+Highly experience in Pytorch and efficiency optimization.
+Experience with AWS, docker and Google Cloud.
+Develop thievery detection and recognition system.
+Experience in pre-processing, training and post-processing
+large amount of image datasets.
+Experience in object classification, detection, tracking,
+segmentation and pose estimation.
+Experience in knowledge distillation, pseudo labeling and
+quantization.
+Optimize efficiency and throughput of the system by using
+pyCUDA, threading and TensorRT.
+Work closely with project manager and members to define
+success criteria for the projects.
+AI ENGINEER
+Global Walkers inc (Contract) | Jan 2020 - April 2020
+Developed object segmentation system for road crack detection
+and segmentation, and nail detection.
+Developed an OCR for Japanese text to automate raw dataset
+creation process.
+Experience in Exploratory data analysis, data cleaning and data
+pre-processing.
+Hands-on experience with various Jetson devices and Cloud
+Servers.
+Experience with Git, Docker, Github, GitLab. PERSONAL PROFILE An Al engineer with 3 years experience in development and deployment of ML / DL applications . A competitive coder and highly experienced Computer Vision , Speech , model optimization for both GPU and CPU . AREAS OF EXPERTISE • Python ● • C , C ++ ● ● ● ● ● ● ● ● ● • Linux ● Pytorch CUDA C ++ ● TensorRT , OpenVino Quantization Computer Vision , Speech , NLP ● 3D reconstruction Hugging face transfomers Git , Github , Docker Django , Flask OTHER SKILLS AWS , GCP shell / bash scripts Communication Highly creative Teamwork Leadership Excellent problem solver AI ENGINEER KYI THAR HEIN GET IN CONTACT Mobile : +959792772885 www.linkedin.com/in/kyi-thar-hein ● ADDRESS Building No ( 823 ) , Kyaung Kone 3rd street , Hlaing tsp , Yangon , Myanmar ● WORK EXPERIENCE MID LEVEL AI ENGINEER / DATA SCIENTIST Bagan Innovation Technology ( Full time ) | July 2021 - Present ● ● ● ● ● ● www.kaggle.com/ichimarugin www.github.com/1chimaruGin MID LEVEL AI ENGINEER Metro Computer Myanmar - Japan ( Full time ) | July 2020 - Jun 2021 ● ● Develop automatic speech recognition system for Burmese . Develop ASR api for general purpose and domain specific projects . Experience in ASR , Speech to Text , Name Entity Recognition and speaker diarization . Work closely with team members and make the system to have highest efficiency and performance . Highly experience in Pytorch and efficiency optimization . Experience with AWS , docker and Google Cloud . Develop thievery detection and recognition system . Experience in pre - processing , training and post - processing large amount of image datasets . Experience in object classification , detection , tracking , segmentation and pose estimation . Experience in knowledge distillation , pseudo labeling and quantization . Optimize efficiency and throughput of the system by using pyCUDA , threading and TensorRT . Work closely with project manager and members to define success criteria for the projects . AI ENGINEER Global Walkers inc ( Contract ) | Jan 2020 - April 2020 Developed object segmentation system for road crack detection and segmentation , and nail detection . Developed an OCR for Japanese text to automate raw dataset creation process . Experience in Exploratory data analysis , data cleaning and data pre - processing . Hands - on experience with various Jetson devices and Cloud Servers . Experience with Git , Docker , Github , GitLab . EDUCATION HISTORY
+UNIVERSITY OF TECHNOLOGY YATANARPON CYBER CITY
+Bachelor of Engineering (Information Science and Technology)
+(2014-2020)
+LANGUAGE
+Myanmar
+·
+●
+• English
+●
+• Japanese
+PERSONAL PROJECTS
+KAGGLE COMPETITIONS
+SIMPLE TRACKER
+INTERESTS
+Gaming
+Football
+Basketball
+Riddles
+- top 8% on Satorius Cell Instance Segmentation
+- top 32% on Google Landmark Recognition
+- top 38% on SIIM-FISABIO-RSNA COVID-19 Detection
+.
+POSE ESTIMATION
+https://github.com/1chimaruGin/Simple Tracker
+"Multi-Object Tracking with YOLOv5 and Norfair tracker"
+https://github.com/1chimaru Gin/Pose-Estimation
+"faster pose estimation for body, whole body and hands)"
+EYE CONTROL (ON GOING)
+https://github.com/1chimaruGin/EyeControl
+"Control the mouse with eyes
+●
+●
+●
+●
+CERIFICATES
+Improving Deep Neural
+Networks: Hyperparameter
+tuning, Regularization and
+Optimization (Deeplearning.ai)
+Neural Network and Deep
+Learning (Deeplearning.ai)
+Structuring Machine Learning
+Project (Deeplearning.ai)
+Convolutional Neural Networks
+(Deeplearning.ai)
+Sequence Model
+(Deeplearning.ai)
+Data Science from top
+(Google)
+Getting Start with AWS ML
+(AWS)
+• Image Understanding with
+TensorFlow on GCP (Google)
+Using TensorFlow with Amazon
+Sagemaker (Coursera)
+Deep Learning NLP: Training
+GPT-2 from Scratch
+●
+Kagglers (HSE)
+End-to-End Machine Learning
+with TensorFlow on GCP
+(Coursera)
+Sequences, Time Series and
+Prediction (Google)
+Introduction to Calculus
+(University of Sydney)
+Production of Machine
+Learning Systems (Google) EDUCATION HISTORY UNIVERSITY OF TECHNOLOGY YATANARPON CYBER CITY Bachelor of Engineering ( Information Science and Technology ) ( 2014-2020 ) LANGUAGE Myanmar · ● • English ● • Japanese PERSONAL PROJECTS KAGGLE COMPETITIONS SIMPLE TRACKER INTERESTS Gaming Football Basketball Riddles - top 8 % on Satorius Cell Instance Segmentation - top 32 % on Google Landmark Recognition - top 38 % on SIIM - FISABIO - RSNA COVID - 19 Detection . POSE ESTIMATION https://github.com/1chimaruGin/Simple Tracker " Multi - Object Tracking with YOLOv5 and Norfair tracker " https://github.com/1chimaru Gin / Pose - Estimation " faster pose estimation for body , whole body and hands ) " EYE CONTROL ( ON GOING ) https://github.com/1chimaruGin/EyeControl " Control the mouse with eyes ● ● ● ● CERIFICATES Improving Deep Neural Networks : Hyperparameter tuning , Regularization and Optimization ( Deeplearning.ai ) Neural Network and Deep Learning ( Deeplearning.ai ) Structuring Machine Learning Project ( Deeplearning.ai ) Convolutional Neural Networks ( Deeplearning.ai ) Sequence Model ( Deeplearning.ai ) Data Science from top ( Google ) Getting Start with AWS ML ( AWS ) • Image Understanding with TensorFlow on GCP ( Google ) Using TensorFlow with Amazon Sagemaker ( Coursera ) Deep Learning NLP : Training GPT - 2 from Scratch ● Kagglers ( HSE ) End - to - End Machine Learning with TensorFlow on GCP ( Coursera ) Sequences , Time Series and Prediction ( Google ) Introduction to Calculus ( University of Sydney ) Production of Machine Learning Systems ( Google )

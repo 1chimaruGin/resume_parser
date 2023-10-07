@@ -1,6 +1,7 @@
 import os
 import openai
 import numpy as np
+from app import schemas
 from google.cloud import vision
 from google.cloud.vision_v1 import types
 from typing import List
@@ -32,7 +33,7 @@ class APIHandler:
             texts = response.text_annotations
             full_text = " ".join([text.description for text in texts])
             resume += " " + full_text
-        return full_text
+        return resume
 
     def get_similarity(self, job_description: str, resume: str) -> float:
         """
@@ -54,7 +55,7 @@ class APIHandler:
         similarity_score = np.dot(embedding_a, embedding_b)
         return similarity_score
     
-    def get_details(self, job_description: str, resume: str) -> str:
+    def get_details(self, job_title: str, industry: str, job_description, resume: str) -> str:
         """
         Get the details of resume.
 
@@ -68,7 +69,11 @@ class APIHandler:
         message = [
             {
                 "role": "system",
-                "content": f"I'm a recruiter. This is a job description {job_description}. Match this job description with applied resume and list their contact information, skills, strength and weakness. Remember the same resume and job description pair must output the same answer.",
+                "content": f"""
+                I'm a recruiter. I am looking for a person who is capable for ths (job title {job_title}) and (job description {job_description}). 
+                Match this job description with applied resume and list their name, contact information, skills, strength and weakness in json format, the key are (name, contact_info, skills, strength, weakness). 
+                Remember the same resume and job description pair must output the same answer.
+                """,
             },
             {"role": "user", "content": f"This is applied resume. {resume}"},
         ]

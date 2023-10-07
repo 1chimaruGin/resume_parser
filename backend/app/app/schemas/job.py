@@ -1,16 +1,17 @@
-import uuid
 from pydantic import BaseModel
-from fastapi import File, UploadFile
 from typing import Optional, Dict, Any, List
 
 class ApplicationBase(BaseModel):
     name: Optional[str]
     score: Optional[float]
     records: Optional[Dict[Any, Any]]
-    is_ready: bool
 
 class ApplicationCreate(ApplicationBase):
     name: str
+    resumes: Optional[List[str]]
+    job_description: Optional[str]
+    resume_text: Optional[str]
+    is_ready: bool
 
 class ApplicationUpdate(ApplicationBase):
     pass
@@ -28,5 +29,7 @@ class Application(ApplicationInDBBase):
 class ApplicationInDB(ApplicationInDBBase):
     pass
 
-class JobDescrition(BaseModel):
-    job_description: str = ""
+class JobDescription(BaseModel):
+    job_title: Optional[str]
+    industry: Optional[str]
+    job_description: Optional[str]

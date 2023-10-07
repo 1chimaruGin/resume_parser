@@ -18,3 +18,8 @@ class User(Base):
     is_superuser = Column(Boolean(), default=False)
     items = relationship("Item", back_populates="owner")
     applications = relationship("Application", back_populates="owner")
+
+class UserGroup(Base):
+    id = Column(Integer, primary_key=True, index=True)
+    org = Column(String, index=True)
+    group = relationship("User", back_populates="groups")

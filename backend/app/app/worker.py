@@ -1,3 +1,4 @@
+import json
 from PIL import Image
 from raven import Client
 from app.core.celery_app import celery_app
@@ -12,13 +13,17 @@ def test_celery(word: str) -> str:
     return f"test task return {word}"
 
 @celery_app.task(acks_late=True)
-def process_resume(images: Image.Image, job_description) -> str:
-    print("The task received")
-    resume, simi, records = _matcher.process(images, job_description)
-    print(simi)
-    print("The records is ", records)
+def process_resume(images: str, job_title: str, industry: str, job_description: str) -> str:
+    resume, simi, records = _matcher.process(images, job_title, industry, job_description)
+    records = json.loads(records)
     return {
-        "resume": resume,
-        "similarity": simi,
-        "records": records
+        "name": records["name"],
+        "resume_text": resume,
+        "score": simi,
+        "records": records,
+        "is_ready": True
     }
+
+@celery_app.task(acks_late=True)
+def send_email(email_to):
+    pass

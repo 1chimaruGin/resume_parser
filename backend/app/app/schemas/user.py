@@ -9,6 +9,7 @@ class UserBase(BaseModel):
     is_active: Optional[bool] = True
     is_superuser: bool = False
     full_name: Optional[str] = None
+    groups: Optional[str] = None
 
 
 # Properties to receive via API on creation
@@ -37,3 +38,10 @@ class User(UserInDBBase):
 # Additional properties stored in DB
 class UserInDB(UserInDBBase):
     hashed_password: str
+
+
+class UserGroupBase(BaseModel):
+    org: Optional[str] = None
+
+class UserGroupCreate(UserGroupBase):
+    org: str

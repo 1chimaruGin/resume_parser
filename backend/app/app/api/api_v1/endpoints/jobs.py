@@ -4,10 +4,11 @@ from PIL import Image
 from app.api import deps
 from app import crud, models, schemas
 from app.core.celery_app import celery_app
+from app.lib.mailer import send_email
 from typing import Any, List
 from sqlalchemy.orm import Session
 from pdf2image import convert_from_bytes
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
 
 
 router = APIRouter()
@@ -37,9 +38,11 @@ async def read_applications(
 
 
 @router.post("/", response_model=schemas.Application)
-def create_application(
+async def create_application(
     *,
     file: UploadFile = File(...),
+    job_title: str = Form(...),
+    industry: str = Form(...),
     job_description: str = Form(...),
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
@@ -48,26 +51,32 @@ def create_application(
     Create new application.
     """
     file_content = file.file.read()
-    job_description = job_description
     images = []
-
     if "image" in file.content_type:
         image = Image.open(BytesIO(file_content))
         images.append(image)
     elif "pdf" in file.content_type:
         images = convert_from_bytes(file_content)
-    encs = [image_to_base64(img) for img in images]
-    task = celery_app.send_task(
-        "app.worker.process_resume", 
-        args=[encs, job_description]
+    encoded_images = [image_to_base64(img) for img in images]
+
+    applications = crud.application.get_multi_by_owner(
+        db=db, owner_id=current_user.id
     )
-    result = task.get()
-    resume = result["resume"]
-    records = {"records": result["records"]}
-    score = result["similarity"]
-    is_ready = True
-    name = "John Doe"
-    obj_in = schemas.ApplicationCreate(name=name, resumes=encs, resume_text=resume, job_description=job_description, score=score, records=records, is_ready=is_ready)
+    for application in applications:
+        if application.job_description == job_description and application.resumes == encoded_images:
+            print("The application is already in the database")
+            return application
+    
+    try:
+        task = celery_app.send_task(
+            "app.worker.process_resume", 
+            args=[encoded_images, job_title, industry, job_description]
+        )
+        result = task.get()
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))
+    
+    obj_in = schemas.ApplicationCreate(resumes=encoded_images, job_description=job_description, **result)
     application = crud.application.create_with_owner(
         db=db, 
         obj_in=obj_in,
@@ -131,3 +140,37 @@ def delete_application(
         raise HTTPException(status_code=400, detail="Not enough permissions")
     application = crud.application.remove(db=db, id=id)
     return application
+
+
+@router.post("/send-email")
+def mailer(
+    *,
+    db: Session = Depends(deps.get_db),
+    top_k: int = 5,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Send email to the top k candidates based on score on application.
+    """
+    applications = crud.application.get_multi_by_owner(
+        db=db, owner_id=current_user.id
+    )
+    applications = [app for app in applications if app.score > 0.65]
+    applications = sorted(applications, key=lambda x: x.score, reverse=True)
+    applications = applications[:top_k]
+    try:
+        for application in applications:
+            email_to = application.name
+            email_from = "recruiter@sorci.ai"
+            subject = "Shortlisted for the job"
+            message = f"""
+                    Dear {application.name},
+                    Congratulations! You have been shortlisted for the job.
+
+                    Best Regards,
+                    recruiter
+                    """
+            send_email(email_from, email_to, subject, message)
+        return status.HTTP_200_OK
+    except Exception as e:
+        return HTTPException(status_code=400, detail=str(e))    
