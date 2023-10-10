@@ -19,7 +19,7 @@ class User(Base):
     items = relationship("Item", back_populates="owner")
     applications = relationship("Application", back_populates="owner")
 
-class UserGroup(Base):
-    id = Column(Integer, primary_key=True, index=True)
-    org = Column(String, index=True)
-    group = relationship("User", back_populates="groups")
+# class UserGroup(Base):
+#     id = Column(Integer, primary_key=True, index=True)
+#     org = Column(String, index=True)
+#     group = relationship("User", back_populates="groups")

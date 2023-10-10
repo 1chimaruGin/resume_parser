@@ -40,8 +40,8 @@ class UserInDB(UserInDBBase):
     hashed_password: str
 
 
-class UserGroupBase(BaseModel):
-    org: Optional[str] = None
+# class UserGroupBase(BaseModel):
+#     org: Optional[str] = None
 
-class UserGroupCreate(UserGroupBase):
-    org: str
+# class UserGroupCreate(UserGroupBase):
+#     org: str
