@@ -71,7 +71,8 @@ class APIHandler:
                 "role": "system",
                 "content": f"""
                 I'm a recruiter. I am looking for a person who is capable for ths (job title {job_title}) and (job description {job_description}). 
-                Match this job description with applied resume and list their name, contact information, skills, strength and weakness in json format, the key are (name, contact_info, skills, strength, weakness). 
+                Match this job description with applied resume and list their name, contact information, skills, strength and weakness in json format, the key are (name, contact_info, skills, strength, weakness).
+                It must be json serializable.
                 Remember the same resume and job description pair must output the same answer.
                 """,
             },
