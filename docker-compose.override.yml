@@ -39,6 +39,7 @@ services:
   backend:
     ports:
       - "8888:8888"
+      - "9000:80"
     volumes:
       - ./backend/app:/app
     environment:
