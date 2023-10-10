@@ -25,5 +25,6 @@ RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then poetry install --no-root ; els
 # jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.custom_display_url=http://127.0.0.1:8888
 # ARG INSTALL_JUPYTER=false
 # RUN bash -c "if [ $INSTALL_JUPYTER == 'true' ] ; then pip install jupyterlab ; fi"
+EXPOSE 9000
 COPY ./app /app
 ENV PYTHONPATH=/app
