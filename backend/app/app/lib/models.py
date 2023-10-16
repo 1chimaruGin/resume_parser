@@ -9,6 +9,7 @@ from ultralytics import YOLO
 
 _logger_ = logging.getLogger(__name__)
 
+
 class ModelHandler:
     def __init__(self, model_path: str = "weights/best.pt"):
         self.model = YOLO(model_path)
@@ -55,4 +56,3 @@ class ModelHandler:
         text_list = [text for v in text_dict.values() for text in v]
         full_text = " ".join(text_list)
         return full_text
-  

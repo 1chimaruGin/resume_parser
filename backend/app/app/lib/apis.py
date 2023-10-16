@@ -9,6 +9,7 @@ from typing import List
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"/app/app/lib/credentials.json"
 
+
 class APIHandler:
     def __init__(self, vision_api: vision = vision, text_api: openai = openai) -> None:
         self.vision_api = vision_api.ImageAnnotatorClient()
@@ -47,15 +48,17 @@ class APIHandler:
             float: Similarity score.
         """
         resp = self.text_api.Embedding.create(
-            input=[job_description, resume], 
-            engine="davinci-similarity" # "text-similarity-davinci-001"
+            input=[job_description, resume],
+            engine="davinci-similarity",  # "text-similarity-davinci-001"
         )
         embedding_a = resp["data"][0]["embedding"]
         embedding_b = resp["data"][1]["embedding"]
         similarity_score = np.dot(embedding_a, embedding_b)
         return similarity_score
-    
-    def get_details(self, job_title: str, industry: str, job_description, resume: str) -> str:
+
+    def get_details(
+        self, job_description: str, resume: str
+    ) -> str:
         """
         Get the details of resume.
 
@@ -66,23 +69,37 @@ class APIHandler:
         Returns:
             str: Details of resume.
         """
+        sample = """
+                 {
+                        "name": "John Doe",
+                        "email": "john@gmail.com",
+                        "phone": "1234567890",
+                        "education": ["B.Tech", "M.Tech"],
+                        "skills": ["python", "AI/ML", "c++"],
+                        "speculate": "speculate the candiate resume",
+                        "explore": "explore the candidate's resume",
+                        "adapt": "check if the candidate is adaptable",
+                        "close": "your thought about the candidate",
+                 }
+                 """
         message = [
             {
                 "role": "system",
-                "content": f"""
-                I'm a recruiter. I am looking for a person who is capable for ths (job title {job_title}) and (job description {job_description}). 
-                Match this job description with applied resume and list their name, contact information, skills, strength and weakness in json format, the key are (name, contact_info, skills, strength, weakness).
-                It must be json serializable.
-                Remember the same resume and job description pair must output the same answer.
-                """,
+                "content": 
+                f"""
+                I'm a recruiter. I am looking for a person who is capable for this job description : {job_description}. 
+                Match this job description with applied resume. Analyaze his/her ability. You must find the name, email, 
+                phone number, education, skills. And also you must speculate, explore, adapt, close on the candidate candidate. The 
+                result will be JSON serializable dictionary as shown in this example: {sample}
+                """
             },
             {"role": "user", "content": f"This is applied resume. {resume}"},
         ]
         response = self.text_api.ChatCompletion.create(
-            model="gpt-4", # gpt-3.5-turbo
-            messages = message,
+            model="gpt-4",  # gpt-3.5-turbo
+            messages=message,
             temperature=0.2,
             max_tokens=1000,
-            frequency_penalty=0.0
+            frequency_penalty=0.0,
         )
         return response["choices"][0]["message"]["content"]
