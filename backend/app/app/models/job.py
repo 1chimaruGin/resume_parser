@@ -7,9 +7,8 @@ from app.db.base_class import Base
 class Application(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    resumes = Column(ARRAY(String))
-    resume_text = Column(Text)
-    job_description = Column(Text)
+    resume = Column(ARRAY(String))
+    job_description = Column(ARRAY(String))
     score = Column(Float)
     records = Column(JSON)
     is_ready = Column(Boolean, default=False)
