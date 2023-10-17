@@ -26,10 +26,6 @@ class ApplicationInDBBase(ApplicationBase):
 class Application(ApplicationInDBBase):
     pass
 
-# class ApplicationInDB(ApplicationInDBBase):
-#     pass
+class ApplicationInDB(ApplicationInDBBase):
+    pass
 
-# class JobDescription(BaseModel):
-#     job_title: Optional[str]
-#     industry: Optional[str]
-#     job_description: Optional[str]
