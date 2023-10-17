@@ -10,7 +10,6 @@ class ApplicationCreate(ApplicationBase):
     name: str
     resume: Optional[List[str]]
     job_description: Optional[List[str]]
-    resume_text: Optional[str]
     is_ready: bool
 
 class ApplicationUpdate(ApplicationBase):
