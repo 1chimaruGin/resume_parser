@@ -63,8 +63,9 @@ async def create_application(
 
     jd_file_content = jd_file.file.read()
     encoded_jd = [
-        image_to_base64(
-            Image.open(BytesIO(jd_file_content))
+        image_to_base64(content)
+        for content in (
+            [Image.open(BytesIO(jd_file_content))]
             if "image" in jd_file.content_type
             else convert_from_bytes(jd_file_content)
         )
