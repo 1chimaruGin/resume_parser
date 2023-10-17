@@ -1,4 +1,6 @@
+import os
 import base64
+import tempfile
 import hashlib
 from io import BytesIO
 from PIL import Image
@@ -23,11 +25,15 @@ def image_to_base64(img):
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 def image_to_pdf(img):
+    """
+    Save the numpy image as pdf in tempfile
+    """
     img = img[:, :, ::-1]
-    buff = BytesIO()
     image = Image.fromarray(img, mode="RGB")
-    image.save(buff, format="PDF")
-    return buff.getvalue()
+    with tempfile.NamedTemporaryFile(prefix="sample", suffix=".pdf", delete=False) as f:
+        f.close()
+        image.save(f.name, "PDF", resolution=100.0, save_all=True)
+        return f.name
 
 
 @router.get("/", response_model=List[schemas.Application])
@@ -242,7 +248,7 @@ def send_mail(
         return HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("download/{id}")
+@router.post("/download/{id}")
 def download(
     *,
     db: Session = Depends(deps.get_db),
@@ -252,12 +258,14 @@ def download(
     application = crud.application.get(db=db, id=id)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    # if application.owner_id != current_user.id:
-    #     raise HTTPException(status_code=400, detail="Not enough permissions")
     try:
         image = download_pdf(application.records)
         pdf = image_to_pdf(image)
-        return FileResponse(pdf, media_type="application/pdf")
+        headers = {
+            "Content-Disposition":  f"attachment; filename=score.pdf"
+        }  
+        return FileResponse(pdf, media_type="application/pdf", headers=headers)
 
     except Exception as e:
+        print(e)
         return HTTPException(status_code=400, detail=str(e))

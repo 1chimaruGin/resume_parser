@@ -33,9 +33,9 @@ def add_text(
 
 def download_pdf(
     records,
-    template: str = "images/sorci.png",
-    bg: str = "images/bg.png",
-    info: str = "images/info.png",
+    template: str = "/app/app/lib/images/sorci.png",
+    bg: str = "/app/app/lib/images/bg.png",
+    info: str = "/app/app/lib/images/info.png",
 ):
 
     image = cv2.imread(bg)
@@ -95,8 +95,8 @@ if __name__ == "__main__":
     image = download_pdf(
         {
             "name": "Alice Clark",
-            "email": "Not Provided",
-            "phone": "Not Provided",
+            "email": "alice@gmail.com",
+            "phone": "1234567890",
             "education": ["Indian Institute of Technology - Mumbai"],
             "skills": [
                 "Machine Learning",
@@ -112,5 +112,4 @@ if __name__ == "__main__":
             "close": "Alice Clark seems to be a strong candidate with extensive experience and a wide range of skills. However, she might need to learn and adapt to some specific technologies and areas mentioned in the job description. Her adaptability and willingness to learn can be a plus point.",
         }
     )
-    cv2.imshow("image", image)
-    cv2.waitKey(0)
+    cv2.imwrite("sample.png", image)
