@@ -1,9 +1,10 @@
 import json
-from PIL import Image
 from raven import Client
+from typing import List
 from app.core.celery_app import celery_app
 from app.core.config import settings
 from app.lib.match import Matcher
+
 
 _matcher = Matcher()
 
@@ -13,17 +14,16 @@ def test_celery(word: str) -> str:
     return f"test task return {word}"
 
 @celery_app.task(acks_late=True)
-def process_resume(images: str, job_title: str, industry: str, job_description: str) -> str:
-    resume, simi, records = _matcher.process(images, job_title, industry, job_description)
-    records = json.loads(records)
-    return {
-        "name": records["name"],
-        "resume_text": resume,
-        "score": simi,
-        "records": records,
-        "is_ready": True
-    }
-
-@celery_app.task(acks_late=True)
-def send_email(email_to):
-    pass
+def process_resume(images: List[str], jd_images: List[str]) -> bool:
+    # Process the resume
+    _, _, similarity, details = _matcher.process(images, jd_images)
+    details = json.loads(details)
+    obj_in = {
+        "name": details["name"],
+        "score": similarity,
+        "records": details,
+        "is_ready": True,
+        "resume": images,
+        "job_description": jd_images,
+    } 
+    return obj_in

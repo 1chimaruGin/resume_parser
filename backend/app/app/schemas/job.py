@@ -8,9 +8,8 @@ class ApplicationBase(BaseModel):
 
 class ApplicationCreate(ApplicationBase):
     name: str
-    resumes: Optional[List[str]]
-    job_description: Optional[str]
-    resume_text: Optional[str]
+    resume: Optional[List[str]]
+    job_description: Optional[List[str]]
     is_ready: bool
 
 class ApplicationUpdate(ApplicationBase):
@@ -29,7 +28,3 @@ class Application(ApplicationInDBBase):
 class ApplicationInDB(ApplicationInDBBase):
     pass
 
-class JobDescription(BaseModel):
-    job_title: Optional[str]
-    industry: Optional[str]
-    job_description: Optional[str]
