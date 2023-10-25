@@ -7,15 +7,21 @@ from typing import Any, Dict, Optional, Union
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
+    def get_by_username(self, db: Session, *, user_name: str) -> Optional[User]:
+        user = db.query(User).filter(User.user_name == user_name).first()
+        return user
+
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).first()
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
+            user_name=obj_in.user_name,
             email=obj_in.email,
             hashed_password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
-            is_superuser=obj_in.is_superuser,
+            role=obj_in.role,
+            organization=obj_in.organization,
         )
         db.add(db_obj)
         db.commit()
@@ -35,8 +41,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data["hashed_password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
-        user = self.get_by_email(db, email=email)
+    def authenticate(self, db: Session, *, user_name: str, password: str) -> Optional[User]:
+        user = self.get_by_username(db, user_name=user_name)
+       
         if not user:
             return None
         if not verify_password(password, user.hashed_password):
@@ -45,9 +52,20 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def is_active(self, user: User) -> bool:
         return user.is_active
+    
+    def is_admin(self, user: User) -> bool:
+        return user.role.name == 'admin'
+    
+    def is_org(self, user: User) -> bool:
+        return user.role.name == 'organization'
+    
+    def is_user(self, user: User) -> bool:
+        return user.role.name == 'user'
+    
+    def is_guest(self, user: User) -> bool:
+        return user.role.name == 'guest'
 
-    def is_superuser(self, user: User) -> bool:
-        return user.is_superuser
-
-
+    def what_role(self, user: User) -> str:
+        return user.role
+    
 user = CRUDUser(User)
