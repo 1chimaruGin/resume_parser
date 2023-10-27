@@ -34,6 +34,7 @@ def init_db(db: Session) -> None:
             email=settings.GUEST_USER_EMAIL,
             password=settings.GUEST_USER_PASSWORD,
             role=RoleType.guest.name,
+            full_name=settings.GUEST_USER,
             organization=None,
         )
         guest = crud.user.create(db, obj_in=guest_in)
