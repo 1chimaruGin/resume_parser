@@ -46,6 +46,7 @@ def login_access_token(
         user_name=user.user_name,
         email=user.email,
         role=user.role.name,
+        full_name=user.full_name,
         organization=user.organization,
     )
     return credential

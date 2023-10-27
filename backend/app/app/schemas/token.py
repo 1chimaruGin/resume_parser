@@ -8,6 +8,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     user_name: Optional[str] = None
+    full_name: Optional[str] = None
     email: Optional[str] = None
     role: Optional[str] = None
     organization: Optional[str] = None
