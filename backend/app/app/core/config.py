@@ -82,6 +82,9 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_EMAIL: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
     USERS_OPEN_REGISTRATION: bool = True
+    GUEST_USER: str
+    GUEST_USER_EMAIL: EmailStr
+    GUEST_USER_PASSWORD: str
 
     class Config:
         case_sensitive = True

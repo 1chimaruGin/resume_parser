@@ -10,6 +10,7 @@ class UserBase(BaseModel):
     is_active: Optional[bool] = True
     role: Optional[RoleType] = None
     full_name: Optional[str] = None
+    organization: Optional[str] = None
 
 
 # Properties to receive via API on creation

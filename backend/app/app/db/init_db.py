@@ -17,11 +17,6 @@ def init_db(db: Session) -> None:
     # Base.metadata.create_all(bind=engine)
     user = crud.user.get_by_email(db, email=settings.FIRST_SUPERUSER_EMAIL)
     if not user:
-        # user_in = schemas.UserCreate(
-        #     email=settings.FIRST_SUPERUSER,
-        #     password=settings.FIRST_SUPERUSER_PASSWORD,
-        #     is_superuser=True,
-        # )
         user_in = schemas.UserCreate(
             user_name=settings.FIRST_SUPERUSER,
             email=settings.FIRST_SUPERUSER_EMAIL,
@@ -29,4 +24,15 @@ def init_db(db: Session) -> None:
             role=RoleType.admin.name,
             organization=None,
         )
-        user = crud.user.create(db, obj_in=user_in)  # noqa: F841
+        user = crud.user.create(db, obj_in=user_in)  # noqa: F841 
+    
+    guest = crud.user.get_by_username(db, user_name=settings.GUEST_USER)
+    if not guest:
+        guest_in = schemas.UserCreate(
+            user_name=settings.GUEST_USER,
+            email=settings.GUEST_USER_EMAIL,
+            password=settings.GUEST_USER_PASSWORD,
+            role=RoleType.guest.name,
+            organization=None,
+        )
+        guest = crud.user.create(db, obj_in=guest_in)
