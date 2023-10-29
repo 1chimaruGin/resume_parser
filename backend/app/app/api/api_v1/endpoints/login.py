@@ -87,13 +87,14 @@ def recover_password(email: str, db: Session = Depends(deps.get_db)) -> Any:
 
 @router.post("/reset-password/", response_model=schemas.Msg)
 def reset_password(
-    token: str = Body(...),
+    email: str = Body(...),
     new_password: str = Body(...),
     db: Session = Depends(deps.get_db),
 ) -> Any:
     """
     Reset password
     """
+    token = generate_password_reset_token(email)
     email = verify_password_reset_token(token)
     if not email:
         raise HTTPException(status_code=400, detail="Invalid token")

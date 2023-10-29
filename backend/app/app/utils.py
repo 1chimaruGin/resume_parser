@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
+from app import crud
 from typing import Any, Dict, Optional
 
 import emails
@@ -101,6 +102,6 @@ def generate_password_reset_token(email: str) -> str:
 def verify_password_reset_token(token: str) -> Optional[str]:
     try:
         decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        return decoded_token["email"]
+        return decoded_token["sub"]
     except jwt.JWTError:
         return None
