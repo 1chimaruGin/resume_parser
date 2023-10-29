@@ -221,10 +221,10 @@ def send_mails(
         return HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/send-email/{email_to}")
+@router.post("/send-email")
 def send_mail(
     *,
-    email_to: List[str] = ["admin@resumeparser.com"],
+    email_to: List[str],
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     try:
