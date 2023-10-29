@@ -1,4 +1,5 @@
 import os
+import re
 import base64
 import tempfile
 import hashlib
@@ -18,6 +19,11 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, s
 
 router = APIRouter()
 
+
+def validate_email(email: str):
+    pattern = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+    return pattern.match(email)
+    
 
 def image_to_base64(img):
     buffered = BytesIO()
@@ -46,7 +52,7 @@ async def read_applications(
     """
     Retrieve applications.
     """
-    if crud.user.is_superuser(current_user):
+    if crud.user.is_admin(current_user):
         applications = crud.application.get_multi(db, skip=skip, limit=limit)
     else:
         applications = crud.application.get_multi_by_owner(
@@ -96,11 +102,9 @@ async def create_application(
                 str(ex.job_description).encode("utf-8")
             ).hexdigest()
             if hash_ex_resume == hash_images and hash_ex_jd == hash_jd_images:
-                print("[INFO] The job application is already in the database")
                 return ex
 
         try:
-            print("Going to send the task")
             task = celery_app.send_task(
                 "app.worker.process_resume", args=[encoded_resumes, encoded_jd]
             )
@@ -116,7 +120,7 @@ async def create_application(
             print("Finished the task")
         except Exception as e:
             print(f"Error: {e}")
-            return HTTPException(status_code=400, detail=str(e))
+            return HTTPException(status_code=400, detail="Error processing resume")
     return status.HTTP_200_OK
 
 
@@ -134,7 +138,7 @@ def update_application(
     application = crud.application.get(db=db, id=id)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_superuser(current_user) and (
+    if not crud.user.is_admin(current_user) and (
         application.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
@@ -157,7 +161,7 @@ def read_application(
     application = crud.application.get(db=db, id=id)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_superuser(current_user) and (
+    if not crud.user.is_admin(current_user) and (
         application.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
@@ -177,7 +181,7 @@ def delete_application(
     application = crud.application.get(db=db, id=id)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_superuser(current_user) and (
+    if not crud.user.is_admin(current_user) and (
         application.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
@@ -202,6 +206,8 @@ def send_mails(
     try:
         for application in applications:
             email_to = application.name
+            if not validate_email(email_to):
+                continue
             email_from = current_user.email
             subject = "Interview Invitation: Congratulations on Being Shortlisted!"
             message = f"""
@@ -218,20 +224,23 @@ def send_mails(
             send_email(email_from, email_to, subject, message)
         return status.HTTP_200_OK
     except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
+        return HTTPException(status_code=400, detail="Error sending email")
 
 
-@router.post("/send-email/{email_to}")
+@router.post("/send-email")
 def send_mail(
     *,
-    email_to: str = "",
+    email_to: List[str],
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     try:
-        email_to = email_to
-        email_from = current_user.email
-        subject = "Interview Invitation: Congratulations on Being Shortlisted!"
-        message = f"""
+        for mail in email_to:
+            if not validate_email(mail):
+                continue
+            email_to = mail
+            email_from = current_user.email
+            subject = "Interview Invitation: Congratulations on Being Shortlisted!"
+            message = f"""
                 We are excited to inform you that you have been shortlisted for the upcoming interview. Congratulations on reaching this stage of our selection process!
                 To schedule an interview or provide your availability, please use the following link: https://calendly.com/collinson-group/25-min-interview
 
@@ -242,10 +251,10 @@ def send_mail(
                 {current_user.full_name} 
                 {current_user.email}
                 """
-        send_email(email_from, email_to, subject, message)
+            send_email(email_from, email_to, subject, message)
         return status.HTTP_200_OK
     except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
+        return HTTPException(status_code=400, detail="Error sending email")
 
 
 @router.post("/download/{id}")
@@ -268,4 +277,4 @@ def download(
 
     except Exception as e:
         print(e)
-        return HTTPException(status_code=400, detail=str(e))
+        return HTTPException(status_code=400, detail="Error downloading file")
