@@ -46,7 +46,7 @@ async def read_applications(
     """
     Retrieve applications.
     """
-    if crud.user.is_superuser(current_user):
+    if crud.user.is_admin(current_user):
         applications = crud.application.get_multi(db, skip=skip, limit=limit)
     else:
         applications = crud.application.get_multi_by_owner(
@@ -134,7 +134,7 @@ def update_application(
     application = crud.application.get(db=db, id=id)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_superuser(current_user) and (
+    if not crud.user.is_admin(current_user) and (
         application.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
@@ -157,7 +157,7 @@ def read_application(
     application = crud.application.get(db=db, id=id)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_superuser(current_user) and (
+    if not crud.user.is_admin(current_user) and (
         application.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
@@ -177,7 +177,7 @@ def delete_application(
     application = crud.application.get(db=db, id=id)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_superuser(current_user) and (
+    if not crud.user.is_admin(current_user) and (
         application.owner_id != current_user.id
     ):
         raise HTTPException(status_code=400, detail="Not enough permissions")
@@ -224,14 +224,15 @@ def send_mails(
 @router.post("/send-email/{email_to}")
 def send_mail(
     *,
-    email_to: str = "",
+    email_to: List[str] = ["admin@resumeparser.com"],
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     try:
-        email_to = email_to
-        email_from = current_user.email
-        subject = "Interview Invitation: Congratulations on Being Shortlisted!"
-        message = f"""
+        for mail in email_to:
+            email_to = mail
+            email_from = current_user.email
+            subject = "Interview Invitation: Congratulations on Being Shortlisted!"
+            message = f"""
                 We are excited to inform you that you have been shortlisted for the upcoming interview. Congratulations on reaching this stage of our selection process!
                 To schedule an interview or provide your availability, please use the following link: https://calendly.com/collinson-group/25-min-interview
 
@@ -242,7 +243,7 @@ def send_mail(
                 {current_user.full_name} 
                 {current_user.email}
                 """
-        send_email(email_from, email_to, subject, message)
+             send_email(email_from, email_to, subject, message)
         return status.HTTP_200_OK
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
