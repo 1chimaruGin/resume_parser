@@ -243,7 +243,7 @@ def send_mail(
                 {current_user.full_name} 
                 {current_user.email}
                 """
-             send_email(email_from, email_to, subject, message)
+            send_email(email_from, email_to, subject, message)
         return status.HTTP_200_OK
     except Exception as e:
         return HTTPException(status_code=400, detail=str(e))
