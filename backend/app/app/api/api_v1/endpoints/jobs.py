@@ -1,4 +1,5 @@
 import os
+import re
 import base64
 import tempfile
 import hashlib
@@ -18,6 +19,11 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, s
 
 router = APIRouter()
 
+
+def validate_email(email: str):
+    pattern = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+    return pattern.match(email)
+    
 
 def image_to_base64(img):
     buffered = BytesIO()
@@ -96,11 +102,9 @@ async def create_application(
                 str(ex.job_description).encode("utf-8")
             ).hexdigest()
             if hash_ex_resume == hash_images and hash_ex_jd == hash_jd_images:
-                print("[INFO] The job application is already in the database")
                 return ex
 
         try:
-            print("Going to send the task")
             task = celery_app.send_task(
                 "app.worker.process_resume", args=[encoded_resumes, encoded_jd]
             )
@@ -116,7 +120,7 @@ async def create_application(
             print("Finished the task")
         except Exception as e:
             print(f"Error: {e}")
-            return HTTPException(status_code=400, detail=str(e))
+            return HTTPException(status_code=400, detail="Error processing resume")
     return status.HTTP_200_OK
 
 
@@ -202,6 +206,8 @@ def send_mails(
     try:
         for application in applications:
             email_to = application.name
+            if not validate_email(email_to):
+                continue
             email_from = current_user.email
             subject = "Interview Invitation: Congratulations on Being Shortlisted!"
             message = f"""
@@ -218,7 +224,7 @@ def send_mails(
             send_email(email_from, email_to, subject, message)
         return status.HTTP_200_OK
     except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
+        return HTTPException(status_code=400, detail="Error sending email")
 
 
 @router.post("/send-email")
@@ -229,6 +235,8 @@ def send_mail(
 ) -> Any:
     try:
         for mail in email_to:
+            if not validate_email(mail):
+                continue
             email_to = mail
             email_from = current_user.email
             subject = "Interview Invitation: Congratulations on Being Shortlisted!"
@@ -246,7 +254,7 @@ def send_mail(
             send_email(email_from, email_to, subject, message)
         return status.HTTP_200_OK
     except Exception as e:
-        return HTTPException(status_code=400, detail=str(e))
+        return HTTPException(status_code=400, detail="Error sending email")
 
 
 @router.post("/download/{id}")
@@ -269,4 +277,4 @@ def download(
 
     except Exception as e:
         print(e)
-        return HTTPException(status_code=400, detail=str(e))
+        return HTTPException(status_code=400, detail="Error downloading file")
