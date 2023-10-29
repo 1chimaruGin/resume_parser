@@ -42,7 +42,7 @@ def image_to_pdf(img):
         return f.name
 
 
-@router.get("/", response_model=List[schemas.Application])
+@router.get("", response_model=List[schemas.Application])
 async def read_applications(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -61,7 +61,7 @@ async def read_applications(
     return applications
 
 
-@router.post("/")
+@router.post("")
 async def create_application(
     *,
     files: List[UploadFile],
