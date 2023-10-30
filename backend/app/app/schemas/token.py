@@ -4,6 +4,7 @@ from typing_extensions import Annotated
 from fastapi.param_functions import Form
 from typing import Any, Dict, List, Optional, Union, cast
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -13,6 +14,7 @@ class Token(BaseModel):
     role: Optional[str] = None
     organization: Optional[str] = None
 
+
 class UserLogin(BaseModel):
     grant_type: Union[str, None] = None
     username: str
@@ -20,6 +22,7 @@ class UserLogin(BaseModel):
     scope: str = ""
     client_id: Union[str, None] = None
     client_secret: Union[str, None] = None
+
 
 class TokenPayload(BaseModel):
     sub: Optional[int] = None

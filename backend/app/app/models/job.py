@@ -1,8 +1,20 @@
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, DateTime, Boolean, JSON, Text, ARRAY, Integer, Float, ForeignKey
+from sqlalchemy import (
+    Column,
+    String,
+    DateTime,
+    Boolean,
+    JSON,
+    Text,
+    ARRAY,
+    Integer,
+    Float,
+    ForeignKey,
+)
 
 from app.db.base_class import Base
+
 
 class Application(Base):
     id = Column(Integer, primary_key=True, index=True)

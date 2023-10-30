@@ -56,9 +56,7 @@ class APIHandler:
         similarity_score = np.dot(embedding_a, embedding_b)
         return similarity_score
 
-    def get_details(
-        self, job_description: str, resume: str
-    ) -> str:
+    def get_details(self, job_description: str, resume: str) -> str:
         """
         Get the details of resume.
 
@@ -85,13 +83,12 @@ class APIHandler:
         message = [
             {
                 "role": "system",
-                "content": 
-                f"""
+                "content": f"""
                 I'm a recruiter. I am looking for a person who is capable for this job description : {job_description}. 
                 Match this job description with applied resume. Analyaze his/her ability. You must find the name, email, 
                 phone number, education, skills. And also you must speculate, explore, adapt, close on the candidate candidate. The 
                 result will be JSON serializable dictionary as shown in this example: {sample}
-                """
+                """,
             },
             {"role": "user", "content": f"This is applied resume. {resume}"},
         ]

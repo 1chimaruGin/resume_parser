@@ -18,9 +18,7 @@ class Matcher:
         img_data = base64.b64decode(base64_string)
         return Image.open(BytesIO(img_data))
 
-    def process(
-        self, images: str, jd_images: str
-    ) -> List[str]:
+    def process(self, images: str, jd_images: str) -> List[str]:
         """
         Process the job description and resume.
 

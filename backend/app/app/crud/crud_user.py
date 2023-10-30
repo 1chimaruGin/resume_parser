@@ -41,9 +41,11 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data["hashed_password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def authenticate(self, db: Session, *, user_name: str, password: str) -> Optional[User]:
+    def authenticate(
+        self, db: Session, *, user_name: str, password: str
+    ) -> Optional[User]:
         user = self.get_by_username(db, user_name=user_name)
-       
+
         if not user:
             return None
         if not verify_password(password, user.hashed_password):
@@ -52,20 +54,32 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def is_active(self, user: User) -> bool:
         return user.is_active
-    
+
     def is_admin(self, user: User) -> bool:
-        return user.role.name == 'admin'
-    
+        return user.role.name == "admin"
+
     def is_org(self, user: User) -> bool:
-        return user.role.name == 'organization'
-    
+        return user.role.name == "organization"
+
     def is_user(self, user: User) -> bool:
-        return user.role.name == 'user'
-    
+        return user.role.name == "user"
+
     def is_guest(self, user: User) -> bool:
-        return user.role.name == 'guest'
+        return user.role.name == "guest"
 
     def what_role(self, user: User) -> str:
         return user.role
-    
+
+    def get_organization(self, db: Session, user_id: int):
+        user = db.query(User).filter(User.id == user_id).first()
+        return user.organization
+
+    def get_user_ids_by_organization(self, db: Session, organization: str):
+        users = db.query(User).filter(User.organization == organization).all()
+        user_ids = []
+        for user in users:
+            user_ids.append(user.id)
+        return user_ids
+
+
 user = CRUDUser(User)

@@ -21,8 +21,9 @@ router = APIRouter()
 
 @router.post("/login/access-token", response_model=schemas.Token)
 def login_access_token(
-    db: Session = Depends(deps.get_db), login_data: schemas.UserLogin = Body(...)
-    # db: Session = Depends(deps.get_db), form_data: OAuth2PasswordRequestForm = Depends()
+    db: Session = Depends(deps.get_db), login_data: schemas.UserLogin = Body(...),
+    # db: Session = Depends(deps.get_db),
+    form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests

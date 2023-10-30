@@ -9,9 +9,12 @@ from app.lib.match import Matcher
 _matcher = Matcher()
 
 client_sentry = Client(settings.SENTRY_DSN)
+
+
 @celery_app.task(acks_late=True)
 def test_celery(word: str) -> str:
     return f"test task return {word}"
+
 
 @celery_app.task(acks_late=True)
 def process_resume(images: List[str], jd_images: List[str]) -> bool:
@@ -25,5 +28,5 @@ def process_resume(images: List[str], jd_images: List[str]) -> bool:
         "is_ready": True,
         "resume": images,
         "job_description": jd_images,
-    } 
+    }
     return obj_in
