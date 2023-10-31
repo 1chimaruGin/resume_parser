@@ -16,11 +16,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean(), default=True)
-    role = Column(
-        Enum(RoleType),
-        nullable=False,
-        server_default=RoleType.user.name
-    )
+    role = Column(Enum(RoleType), nullable=False, server_default=RoleType.user.name)
     organization = Column(String, index=True, server_default=None)
     items = relationship("Item", back_populates="owner")
     applications = relationship("Application", back_populates="owner")
@@ -29,5 +25,4 @@ class User(Base):
 # class UserGroup(Base):
 #     id = Column(Integer, primary_key=True, index=True)
 #     org = Column(String, index=True)
-#     user_id = Column(Integer, ForeignKey('user.id'))  
-
+#     user_id = Column(Integer, ForeignKey('user.id'))

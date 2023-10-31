@@ -23,12 +23,13 @@ router = APIRouter()
 def validate_email(email: str):
     pattern = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
     return pattern.match(email)
-    
+
 
 def image_to_base64(img):
     buffered = BytesIO()
     img.save(buffered, format="PNG")
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
+
 
 def image_to_pdf(img):
     """
@@ -54,6 +55,10 @@ async def read_applications(
     """
     if crud.user.is_admin(current_user):
         applications = crud.application.get_multi(db, skip=skip, limit=limit)
+    elif crud.user.is_org(current_user):
+        applications = crud.application.get_multi_by_organization(
+            db=db, owner_id=current_user.id, skip=skip, limit=limit
+        )
     else:
         applications = crud.application.get_multi_by_owner(
             db=db, owner_id=current_user.id, skip=skip, limit=limit
@@ -72,7 +77,15 @@ async def create_application(
     """
     Create new application.
     """
-
+    if crud.user.is_guest(current_user):
+        guest_applications = crud.application.get_multi_by_owner(
+            db=db, owner_id=current_user.id
+        )
+        if len(guest_applications) >= 2:
+            return HTTPException(
+                status_code=400,
+                detail="You have reached the maximum number of applications",
+            )
     jd_file_content = jd_file.file.read()
     encoded_jd = [
         image_to_base64(content)
@@ -103,16 +116,13 @@ async def create_application(
             ).hexdigest()
             if hash_ex_resume == hash_images and hash_ex_jd == hash_jd_images:
                 return ex
-
         try:
             task = celery_app.send_task(
                 "app.worker.process_resume", args=[encoded_resumes, encoded_jd]
             )
             print("Sent the task")
             details = task.get()
-            obj_in = schemas.ApplicationCreate(
-                **details
-            )
+            obj_in = schemas.ApplicationCreate(**details)
             # Create the application
             crud.application.create_with_owner(
                 db=db, obj_in=obj_in, owner_id=current_user.id
@@ -135,13 +145,16 @@ def update_application(
     """
     Update an application.
     """
-    application = crud.application.get(db=db, id=id)
-    if not application:
-        raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_admin(current_user) and (
-        application.owner_id != current_user.id
-    ):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+    if crud.user.is_admin(current_user):
+        application = crud.application.get(db=db, id=id)
+    elif crud.user.is_org(current_user):
+        application = crud.application.get_multi_by_organization(
+            db=db, owner_id=current_user.id, id=id
+        )
+    else:
+        application = crud.application.get_multi_by_owner(
+            db=db, owner_id=current_user.id, id=id
+        )
     application = crud.application.update(
         db=db, db_obj=application, obj_in=application_in
     )
@@ -158,13 +171,18 @@ def read_application(
     """
     Get application by ID.
     """
-    application = crud.application.get(db=db, id=id)
+    if crud.user.is_admin(current_user):
+        application = crud.application.get(db=db, id=id)
+    elif crud.user.is_org(current_user):
+        application = crud.application.get_multi_by_organization(
+            db=db, owner_id=current_user.id, id=id
+        )
+    else:
+        application = crud.application.get_multi_by_owner(
+            db=db, owner_id=current_user.id, id=id
+        )
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_admin(current_user) and (
-        application.owner_id != current_user.id
-    ):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
     return application
 
 
@@ -178,13 +196,18 @@ def delete_application(
     """
     Delete an application.
     """
-    application = crud.application.get(db=db, id=id)
+    if crud.user.is_admin(current_user):
+        application = crud.application.get(db=db, id=id)
+    elif crud.user.is_org(current_user):
+        application = crud.application.get_multi_by_organization(
+            db=db, owner_id=current_user.id, id=id
+        )
+    else:
+        application = crud.application.get_multi_by_owner(
+            db=db, owner_id=current_user.id, id=id
+        )
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
-    if not crud.user.is_admin(current_user) and (
-        application.owner_id != current_user.id
-    ):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
     application = crud.application.remove(db=db, id=id)
     return application
 
@@ -199,6 +222,8 @@ def send_mails(
     """
     Send email to the top k candidates based on score on application.
     """
+    if crud.user.is_guest(current_user):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
     applications = crud.application.get_multi_by_owner(db=db, owner_id=current_user.id)
     applications = [app for app in applications if app.score > 0.65]
     applications = sorted(applications, key=lambda x: x.score, reverse=True)
@@ -233,6 +258,8 @@ def send_mail(
     email_to: List[str],
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
+    if crud.user.is_guest(current_user):
+        raise HTTPException(status_code=400, detail="Not enough permissions")
     try:
         for mail in email_to:
             if not validate_email(mail):
@@ -270,9 +297,7 @@ def download(
     try:
         image = download_pdf(application.records)
         pdf = image_to_pdf(image)
-        headers = {
-            "Content-Disposition":  f"attachment; filename=score.pdf"
-        }  
+        headers = {"Content-Disposition": f"attachment; filename=score.pdf"}
         return FileResponse(pdf, media_type="application/pdf", headers=headers)
 
     except Exception as e:

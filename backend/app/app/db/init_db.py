@@ -25,8 +25,8 @@ def init_db(db: Session) -> None:
             role=RoleType.admin.name,
             organization=None,
         )
-        user = crud.user.create(db, obj_in=user_in)  # noqa: F841 
-    
+        user = crud.user.create(db, obj_in=user_in)  # noqa: F841
+
     guest = crud.user.get_by_username(db, user_name=settings.GUEST_USER)
     if not guest:
         guest_in = schemas.UserCreate(
@@ -38,3 +38,27 @@ def init_db(db: Session) -> None:
             organization=None,
         )
         guest = crud.user.create(db, obj_in=guest_in)
+
+    organization1 = crud.user.get_by_username(db, user_name=settings.ORGANIZATION_USER1)
+    organization2 = crud.user.get_by_username(db, user_name=settings.ORGANIZATION_USER2)
+    if not organization1:
+        organization1_in = schemas.UserCreate(
+            user_name=settings.ORGANIZATION_USER1,
+            email=settings.ORGANIZATION_USER1_EMAIL,
+            password=settings.ORGANIZATION_USER1_PASSWORD,
+            role=RoleType.organization.name,
+            organization=settings.ORGANIZATION_NAME,
+            full_name=settings.ORGANIZATION_USER1,
+        )
+        organization1 = crud.user.create(db, obj_in=organization1_in)
+
+    if not organization2:
+        organization2_in = schemas.UserCreate(
+            user_name=settings.ORGANIZATION_USER2,
+            email=settings.ORGANIZATION_USER2_EMAIL,
+            password=settings.ORGANIZATION_USER2_PASSWORD,
+            role=RoleType.organization.name,
+            full_name=settings.ORGANIZATION_USER2,
+            organization=settings.ORGANIZATION_NAME,
+        )
+        organization2 = crud.user.create(db, obj_in=organization2_in)

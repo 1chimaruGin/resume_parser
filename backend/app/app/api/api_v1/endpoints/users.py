@@ -1,13 +1,14 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
+from fastapi.encoders import jsonable_encoder
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from app import crud, models, schemas
 from app.api import deps
+from app.lib.mailer import send_email
 from app.core.config import settings
+from app import crud, models, schemas
 from app.utils import send_new_account_email
 
 router = APIRouter()
@@ -96,10 +97,10 @@ def create_user_open(
     Create new user without the need to be logged in.
     """
     # if not settings.USERS_OPEN_REGISTRATION:
-        # raise HTTPException(
-        #     status_code=403,
-        #     detail="Open user registration is forbidden on this server",
-        # )
+    # raise HTTPException(
+    #     status_code=403,
+    #     detail="Open user registration is forbidden on this server",
+    # )
     with_name = crud.user.get_by_username(db, user_name=register_in.user_name)
     with_email = crud.user.get_by_email(db, email=register_in.email)
     if with_name or with_email:
@@ -109,6 +110,45 @@ def create_user_open(
         )
     # user_in = schemas.UserCreate()
     user = crud.user.create(db, obj_in=register_in)
+    return user
+
+
+@router.delete("/{user_id}", response_model=schemas.User)
+def delete_user(
+    *,
+    db: Session = Depends(deps.get_db),
+    user_id: int,
+    current_user: models.User = Depends(deps.get_current_active_superuser),
+) -> Any:
+    """
+    Delete a user.
+    """
+    user = crud.user.get(db, id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this username does not exist in the system",
+        )
+    if not crud.user.is_admin(current_user) and current_user.id != user_id:
+        raise HTTPException(
+            status_code=400, detail="The user doesn't have enough privileges"
+        )
+    user = crud.user.remove(db, id=user_id)
+    return user
+
+
+@router.delete("/me", response_model=schemas.User)
+def delete_user_me(
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Delete own user.
+    """
+    user = crud.user.remove(db, id=current_user.id)
+    if crud.user.is_admin(current_user):
+        raise HTTPException(status_code=400, detail="The admin user cannot be deleted")
+    user = crud.user.remove(db, id=current_user.id)
     return user
 
 
@@ -150,3 +190,27 @@ def update_user(
         )
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
+
+@router.post("/contact_us")
+def contact_us(
+    *,
+    contact_in: schemas.Msg,
+) -> Any:
+    """
+    Contact us.
+    """
+    subject = contact_in.subject
+    mail_from = contact_in.email
+    mail_to = settings.EMAILS_FROM_EMAIL
+    text = contact_in.msg
+    try:
+        send_email(
+            subject=subject,
+            recipients=[mail_to],
+            body=text,
+            sender=mail_from,
+        )
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=400, detail="Error sending email")
+    return status.HTTP_200_OK

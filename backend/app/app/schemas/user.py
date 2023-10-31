@@ -43,6 +43,7 @@ class User(UserInDBBase):
 class UserInDB(UserInDBBase):
     hashed_password: str
 
+
 # class UserGroupBase(BaseModel):
 #     org: Optional[str] = None
 #     user_id: Optional[int] = None
