@@ -1,13 +1,14 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Body, Depends, HTTPException
-from fastapi.encoders import jsonable_encoder
 from pydantic.networks import EmailStr
 from sqlalchemy.orm import Session
+from fastapi.encoders import jsonable_encoder
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from app import crud, models, schemas
 from app.api import deps
+from app.lib.mailer import send_email
 from app.core.config import settings
+from app import crud, models, schemas
 from app.utils import send_new_account_email
 
 router = APIRouter()
@@ -189,3 +190,27 @@ def update_user(
         )
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
+
+@router.post("/contact_us")
+def contact_us(
+    *,
+    contact_in: schemas.Msg,
+) -> Any:
+    """
+    Contact us.
+    """
+    subject = contact_in.subject
+    mail_from = contact_in.email
+    mail_to = settings.EMAILS_FROM_EMAIL
+    text = contact_in.msg
+    try:
+        send_email(
+            subject=subject,
+            recipients=[mail_to],
+            body=text,
+            sender=mail_from,
+        )
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=400, detail="Error sending email")
+    return status.HTTP_200_OK
