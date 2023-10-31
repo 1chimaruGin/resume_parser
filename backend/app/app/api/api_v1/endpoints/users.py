@@ -206,9 +206,9 @@ def contact_us(
     try:
         send_email(
             subject=subject,
-            recipients=[mail_to],
-            body=text,
-            sender=mail_from,
+            email_to=mail_to,
+            email_from=mail_from,
+            message=text,
         )
     except Exception as e:
         print(e)
