@@ -1,3 +1,4 @@
+import ast
 import json
 from raven import Client
 from typing import List
@@ -20,7 +21,10 @@ def test_celery(word: str) -> str:
 def process_resume(images: List[str], jd_images: List[str]) -> bool:
     # Process the resume
     _, _, similarity, details = _matcher.process(images, jd_images)
-    details = json.loads(details)
+    try:
+        details = json.loads(details)
+    except json.decoder.JSONDecodeError:
+        details = ast.literal_eval(details)
     obj_in = {
         "name": details["name"],
         "score": similarity,

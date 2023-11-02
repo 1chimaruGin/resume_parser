@@ -1,4 +1,6 @@
 import os
+import re
+import ast
 import json
 import openai
 import numpy as np
@@ -94,9 +96,9 @@ class APIHandler:
             {"role": "user", "content": f"This is applied resume. {resume}"},
         ]
         response = self.text_api.ChatCompletion.create(
-            model="gpt-4",  # gpt-3.5-turbo
+            model="gpt-3.5-turbo",  # gpt-3.5-turbo
             messages=message,
-            temperature=0.1,
+            temperature=0.0,
             max_tokens=1000,
             frequency_penalty=0.0,
         )
@@ -108,17 +110,7 @@ class APIHandler:
         return details
 
     def fix_json(self, details):
-        message = [
-            {
-                "role": "user",
-                "content": f"Fix this {details} to JSON serializable string dictionary. Must be JSON serializable.",
-            }
-        ]
-        response = self.text_api.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=message,
-            temperature=0.1,
-            max_tokens=1000,
-            frequency_penalty=0.0,
-        )
-        return response["choices"][0]["message"]["content"]
+        """
+        Fix the json string.
+        """
+        return re.sub(r"([a-zA-Z0-9]+):", r'"\1":', details)
