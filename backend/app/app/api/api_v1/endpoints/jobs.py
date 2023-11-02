@@ -1,5 +1,5 @@
-import os
 import re
+import time
 import base64
 import tempfile
 import hashlib
@@ -95,7 +95,8 @@ async def create_application(
             else convert_from_bytes(jd_file_content)
         )
     ]
-    for file in files:
+    start = time.time()
+    for i, file in enumerate(files):
         file_content = file.file.read()
         encoded_resumes = [
             image_to_base64(content)
@@ -105,8 +106,14 @@ async def create_application(
                 else convert_from_bytes(file_content)
             )
         ]
+        process = time.time() - start
+        # exception after 5 minutes
+        if process > 300:
+            return HTTPException(
+                status_code=200,
+                detail=f"Processing time exceeded. {len(files) - i} " ,
+            )
         existing = crud.application.get_multi_by_owner(db=db, owner_id=current_user.id)
-        # Check if the application is already in the database
         hash_images = hashlib.md5(str(encoded_resumes).encode("utf-8")).hexdigest()
         hash_jd_images = hashlib.md5(str(encoded_jd).encode("utf-8")).hexdigest()
         for ex in existing:
@@ -115,21 +122,18 @@ async def create_application(
                 str(ex.job_description).encode("utf-8")
             ).hexdigest()
             if hash_ex_resume == hash_images and hash_ex_jd == hash_jd_images:
-                return ex
+                return HTTPException(status_code=200, detail="Application already exists")
         try:
             task = celery_app.send_task(
                 "app.worker.process_resume", args=[encoded_resumes, encoded_jd]
             )
-            print("Sent the task")
             details = task.get()
             obj_in = schemas.ApplicationCreate(**details)
             # Create the application
             crud.application.create_with_owner(
                 db=db, obj_in=obj_in, owner_id=current_user.id
             )
-            print("Finished the task")
         except Exception as e:
-            print(f"Error: {e}")
             return HTTPException(status_code=400, detail="Error processing resume")
     return status.HTTP_200_OK
 
