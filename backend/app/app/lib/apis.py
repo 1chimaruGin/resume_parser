@@ -1,4 +1,5 @@
 import os
+import json
 import openai
 import numpy as np
 from app import schemas
@@ -87,7 +88,7 @@ class APIHandler:
                 I'm a recruiter. I am looking for a person who is capable for this job description : {job_description}. 
                 Match this job description with applied resume. Analyaze his/her ability. You must find the name, email, 
                 phone number, education, skills. And also you must speculate, explore, adapt, close on the candidate candidate. The 
-                result will be JSON serializable dictionary as shown in this example: {sample}
+                result will be JSON serializable dictionary as shown in this example: {sample}. Must be JSON serializable. 
                 """,
             },
             {"role": "user", "content": f"This is applied resume. {resume}"},
@@ -95,7 +96,28 @@ class APIHandler:
         response = self.text_api.ChatCompletion.create(
             model="gpt-4",  # gpt-3.5-turbo
             messages=message,
-            temperature=0.2,
+            temperature=0.1,
+            max_tokens=1000,
+            frequency_penalty=0.0,
+        )
+        details = response["choices"][0]["message"]["content"]
+        try:
+            json.loads(details)
+        except json.decoder.JSONDecodeError:
+            details = self.fix_json(details)
+        return details
+
+    def fix_json(self, details):
+        message = [
+            {
+                "role": "user",
+                "content": f"Fix this {details} to JSON serializable string dictionary. Must be JSON serializable.",
+            }
+        ]
+        response = self.text_api.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=message,
+            temperature=0.1,
             max_tokens=1000,
             frequency_penalty=0.0,
         )

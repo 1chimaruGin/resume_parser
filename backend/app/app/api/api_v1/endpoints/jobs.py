@@ -108,7 +108,7 @@ async def create_application(
         ]
         process = time.time() - start
         # exception after 5 minutes
-        if process > 300:
+        if process > 600:
             return HTTPException(
                 status_code=200,
                 detail=f"Processing time exceeded. {len(files) - i} " ,
