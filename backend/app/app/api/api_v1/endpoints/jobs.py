@@ -107,8 +107,7 @@ async def create_application(
             )
         ]
         process = time.time() - start
-        # exception after 5 minutes
-        if process > 600:
+        if process > 3600:
             return HTTPException(
                 status_code=200,
                 detail=f"Processing time exceeded. {len(files) - i} " ,
@@ -122,7 +121,7 @@ async def create_application(
                 str(ex.job_description).encode("utf-8")
             ).hexdigest()
             if hash_ex_resume == hash_images and hash_ex_jd == hash_jd_images:
-                return HTTPException(status_code=200, detail="Application already exists")
+                continue
         try:
             task = celery_app.send_task(
                 "app.worker.process_resume", args=[encoded_resumes, encoded_jd]
@@ -133,8 +132,8 @@ async def create_application(
             crud.application.create_with_owner(
                 db=db, obj_in=obj_in, owner_id=current_user.id
             )
-        except Exception as e:
-            return HTTPException(status_code=400, detail="Error processing resume")
+        except Exception:
+            return HTTPException(status_code=400, detail="Error processing resume!")
     return status.HTTP_200_OK
 
 
