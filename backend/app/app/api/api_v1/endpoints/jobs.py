@@ -1,5 +1,4 @@
 import re
-import time
 import base64
 import tempfile
 import hashlib
@@ -95,8 +94,13 @@ async def create_application(
             else convert_from_bytes(jd_file_content)
         )
     ]
-    start = time.time()
-    for i, file in enumerate(files):
+    # More than 20 files or 100 MB will be cut off
+    if len(files) > 20 or sum([file.size for file in files]) > 100000000:
+        return HTTPException(
+            status_code=400,
+            detail="You have reached the maximum number of files or size",
+        )
+    for file in files:
         file_content = file.file.read()
         encoded_resumes = [
             image_to_base64(content)
@@ -106,13 +110,17 @@ async def create_application(
                 else convert_from_bytes(file_content)
             )
         ]
-        process = time.time() - start
-        if process > 3600:
-            return HTTPException(
-                status_code=200,
-                detail=f"Processing time exceeded. {len(files) - i} " ,
+        # existing = crud.application.get_multi_by_owner(db=db, owner_id=current_user.id)
+        if crud.user.is_admin(current_user):
+            existing = crud.application.get_multi(db)
+        elif crud.user.is_org(current_user):
+            existing = crud.application.get_multi_by_organization(
+                db=db, owner_id=current_user.id
             )
-        existing = crud.application.get_multi_by_owner(db=db, owner_id=current_user.id)
+        else:
+            existing = crud.application.get_multi_by_owner(
+                db=db, owner_id=current_user.id
+            )
         hash_images = hashlib.md5(str(encoded_resumes).encode("utf-8")).hexdigest()
         hash_jd_images = hashlib.md5(str(encoded_jd).encode("utf-8")).hexdigest()
         for ex in existing:
