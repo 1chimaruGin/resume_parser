@@ -123,13 +123,17 @@ async def create_application(
             )
         hash_images = hashlib.md5(str(encoded_resumes).encode("utf-8")).hexdigest()
         hash_jd_images = hashlib.md5(str(encoded_jd).encode("utf-8")).hexdigest()
+        skip = False
         for ex in existing:
             hash_ex_resume = hashlib.md5(str(ex.resume).encode("utf-8")).hexdigest()
             hash_ex_jd = hashlib.md5(
                 str(ex.job_description).encode("utf-8")
             ).hexdigest()
             if hash_ex_resume == hash_images and hash_ex_jd == hash_jd_images:
-                continue
+                skip = True
+                break
+        if skip:
+            continue
         try:
             task = celery_app.send_task(
                 "app.worker.process_resume", args=[encoded_resumes, encoded_jd]
