@@ -4,7 +4,7 @@ import ast
 import json
 import openai
 import numpy as np
-from app import schemas
+from multiprocessing import Pool
 from google.cloud import vision
 from google.cloud.vision_v1 import types
 from typing import List
@@ -76,6 +76,7 @@ class APIHandler:
                         "email": "john@gmail.com",
                         "phone": "1234567890",
                         "education": ["B.Tech", "M.Tech"],
+                        "score": 0.8,
                         "skills": ["python", "AI/ML", "c++"],
                         "speculate": "speculate the candiate resume",
                         "explore": "explore the candidate's resume",
@@ -89,14 +90,15 @@ class APIHandler:
                 "content": f"""
                 I'm a recruiter. I am looking for a person who is capable for this job description : {job_description}. 
                 Match this job description with applied resume. Analyaze his/her ability. You must find the name, email, 
-                phone number, education, skills. And also you must speculate, explore, adapt, close on the candidate candidate. The 
+                phone number, education, skills, resume and JD similarity score. And also you must speculate, explore, adapt, close on the candidate candidate. The 
                 result will be JSON serializable dictionary as shown in this example: {sample}. Must be JSON serializable. 
                 """,
             },
             {"role": "user", "content": f"This is applied resume. {resume}"},
         ]
         response = self.text_api.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # gpt-3.5-turbo
+            # model="gpt-3.5-turbo",  # gpt-3.5-turbo
+            model="gpt-4",
             messages=message,
             temperature=0.0,
             max_tokens=1000,

@@ -8,6 +8,7 @@ from app.api import deps
 from app import crud, models, schemas
 from app.core.celery_app import celery_app
 from app.lib.mailer import send_email
+from app.lib.match import process_resume
 from app.lib.download import download_pdf
 from typing import Any, List
 from sqlalchemy.orm import Session
@@ -17,7 +18,6 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, s
 
 
 router = APIRouter()
-
 
 def validate_email(email: str):
     pattern = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
@@ -41,6 +41,33 @@ def image_to_pdf(img):
         image.save(f.name, "PDF", resolution=100.0, save_all=True)
         return f.name
 
+def encode_images(files: List[UploadFile]):
+    encoded_images, file_names = [], []
+    for file in files:
+        file_content = file.file.read()
+        encoded_ = [
+            image_to_base64(content)
+            for content in (
+                [Image.open(BytesIO(file_content))]
+                if "image" in file.content_type
+                else convert_from_bytes(file_content)
+            )
+        ]
+        encoded_images.append(encoded_)
+        file_names.append(file.filename)
+    return encoded_images, file_names
+
+def guest_permission(current_user, db):
+    if crud.user.is_guest(current_user):
+        guest_applications = crud.application.get_multi_by_owner(
+            db=db, owner_id=current_user.id
+        )
+        if len(guest_applications) >= 2:
+            return HTTPException(
+                status_code=400,
+                detail="You have reached the maximum number of applications",
+            )
+    return True
 
 @router.get("", response_model=List[schemas.Application])
 async def read_applications(
@@ -64,7 +91,6 @@ async def read_applications(
         )
     return applications
 
-
 @router.post("")
 async def create_application(
     *,
@@ -76,41 +102,11 @@ async def create_application(
     """
     Create new application.
     """
-    if crud.user.is_guest(current_user):
-        guest_applications = crud.application.get_multi_by_owner(
-            db=db, owner_id=current_user.id
-        )
-        if len(guest_applications) >= 2:
-            return HTTPException(
-                status_code=400,
-                detail="You have reached the maximum number of applications",
-            )
-    jd_file_content = jd_file.file.read()
-    encoded_jd = [
-        image_to_base64(content)
-        for content in (
-            [Image.open(BytesIO(jd_file_content))]
-            if "image" in jd_file.content_type
-            else convert_from_bytes(jd_file_content)
-        )
-    ]
-    # More than 20 files or 100 MB will be cut off
-    if len(files) > 20 or sum([file.size for file in files]) > 100000000:
-        return HTTPException(
-            status_code=400,
-            detail="You have reached the maximum number of files or size",
-        )
-    for file in files:
-        file_content = file.file.read()
-        encoded_resumes = [
-            image_to_base64(content)
-            for content in (
-                [Image.open(BytesIO(file_content))]
-                if "image" in file.content_type
-                else convert_from_bytes(file_content)
-            )
-        ]
-        # existing = crud.application.get_multi_by_owner(db=db, owner_id=current_user.id)
+    guest_permission(current_user, db)
+    resumes, resume_file_names = encode_images(files)
+    jds, _ = encode_images([jd_file])
+    new_resumes, new_resume_file_names = [], []
+    for resume, file_name in zip(resumes, resume_file_names):
         if crud.user.is_admin(current_user):
             existing = crud.application.get_multi(db)
         elif crud.user.is_org(current_user):
@@ -121,31 +117,58 @@ async def create_application(
             existing = crud.application.get_multi_by_owner(
                 db=db, owner_id=current_user.id
             )
-        hash_images = hashlib.md5(str(encoded_resumes).encode("utf-8")).hexdigest()
-        hash_jd_images = hashlib.md5(str(encoded_jd).encode("utf-8")).hexdigest()
+        hash_resumes = hashlib.md5(str(resume).encode("utf-8")).hexdigest()
+        hash_jds = hashlib.md5(str(jds[0]).encode("utf-8")).hexdigest()
         skip = False
         for ex in existing:
             hash_ex_resume = hashlib.md5(str(ex.resume).encode("utf-8")).hexdigest()
             hash_ex_jd = hashlib.md5(
                 str(ex.job_description).encode("utf-8")
             ).hexdigest()
-            if hash_ex_resume == hash_images and hash_ex_jd == hash_jd_images:
+            if hash_ex_resume == hash_resumes and hash_ex_jd == hash_jds:
                 skip = True
                 break
         if skip:
+            print(f"[INFO] Skipping {file_name}")
             continue
-        try:
-            task = celery_app.send_task(
-                "app.worker.process_resume", args=[encoded_resumes, encoded_jd]
-            )
-            details = task.get()
-            obj_in = schemas.ApplicationCreate(**details)
+        new_resumes.append(resume)
+        new_resume_file_names.append(file_name)
+    try:
+        details = process_resume(new_resumes, new_resume_file_names, jds[0], 6)
+        for k, detail in details.items():
+            if detail == "Error":
+                send_email(
+                    "admin@sorci.ai",
+                    current_user.email,
+                    subject="Application failed",
+                    message=f"""
+                    Your application {k} has failed to process!
+
+                    Best regards,
+                    Sorci.ai Team
+                    """
+                )
+                continue
+            obj_in = schemas.ApplicationCreate(**detail)
             # Create the application
             crud.application.create_with_owner(
                 db=db, obj_in=obj_in, owner_id=current_user.id
             )
-        except Exception:
-            return HTTPException(status_code=400, detail="Error processing resume!")
+    except Exception:
+        return HTTPException(status_code=400, detail="Error processing resume!")
+    send_email(
+        "admin@sorci.ai",
+        # current_user.email,
+        "kyitharhein18@gmail.com",
+        subject="Application processed",
+        message="""
+        Your application has been processed successfully!
+        You can view the results on the dashboard.
+
+        Best regards,
+        Sorci.ai Team
+        """,
+    ) 
     return status.HTTP_200_OK
 
 
