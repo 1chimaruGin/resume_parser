@@ -158,8 +158,7 @@ async def create_application(
         return HTTPException(status_code=400, detail="Error processing resume!")
     send_email(
         "admin@sorci.ai",
-        # current_user.email,
-        "kyitharhein18@gmail.com",
+        current_user.email,
         subject="Application processed",
         message="""
         Your application has been processed successfully!
