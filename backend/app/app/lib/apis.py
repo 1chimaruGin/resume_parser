@@ -70,6 +70,50 @@ class APIHandler:
         Returns:
             str: Details of resume.
         """
+        algoritm = \
+        """
+        Scoring Algorithm:
+        Skills Match (25 points):
+        - Keywords: 10 * (Number of Keywords Matched / Total Keywords)
+        - Technical Skills: 7 * (Number of Technical Skills Matched / Total Technical Skills)
+        - Cross-Functional Skills: 3 * (Number of Cross-Functional Skills Matched / Total Cross-Functional Skills)
+        - Works in the same industry as the job description: 5 (Yes/No)
+        - Certifications: 3 * (Number of Certifications Matched / Total Certifications)
+        Experience (20 points):
+        - Years of Experience: 7 * (Number of Years of Experience / Maximum Years for Full Points)
+        - Achievements: 5 * (Number of Achievements / Total Achievements)
+        - Progression: 4 * (Progression Level / Maximum Progression Level)
+        - Average year job tenure (anything over 5 years is full points): 4 (Yes/No)
+        - In the current position for at least 1 year: 1 (Yes/No)
+        Education (10 points):
+        - Relevance to Role: 4 * (Relevance Level / Maximum Relevance Level)
+        - Advanced Degrees: 1 (Yes/No)
+        - Academic Achievements: 1 (Yes/No)
+        - Continued Education: 1 (Yes/No)
+        - Alignment with Job Requirements: 3 * (Alignment Level / Maximum Alignment Level)
+        Keywords and Semantics (20 points):
+        - Keyword Frequency: 3 * (Frequency Level / Maximum Frequency Level)
+        - Semantic Analysis: 4 * (Semantic Analysis Level / Maximum Semantic Analysis Level)
+        - Contextual Language: 3 * (Contextual Language Level / Maximum Contextual Language Level)
+        Job Title Relevance (10 points):
+        - Alignment with Role: 3 * (Alignment Level / Maximum Alignment Level)
+        - Progression: 3 * (Progression Level / Maximum Progression Level)
+        - Consistency: 2 * (Consistency Level / Maximum Consistency Level)
+        - Industry Standardization: 2 * (Standardization Level / Maximum Standardization Level)
+        Location (5 points):
+        - Local: 5 (Yes/No)
+        - Willingness to Relocate: 2 (Yes/No)
+        - Experience in Different Locations: 1 (Yes/No)
+        Achievements (5 points):
+        - Impactful Achievements: 5 * (Impact Level / Maximum Impact Level)
+        - Consistency: 3 * (Consistency Level / Maximum Consistency Level)
+        - Alignment with Goals: 4 * (Alignment Level / Maximum Alignment Level)
+        Formatting (5 points):
+        - Spelling errors 0-1 errors: 5
+        - Spelling errors 2-3 errors: 3
+        - Spelling errors more than 4: 0
+        Final Score: Sum of Scores from all Categories (output should be as a percentage)
+        """
         sample = """
                  {
                         "name": "John Doe",
@@ -90,7 +134,8 @@ class APIHandler:
                 "content": f"""
                 I'm a recruiter. I am looking for a person who is capable for this job description : {job_description}. 
                 Match this job description with applied resume. Analyaze his/her ability. You must find the name, email, 
-                phone number, education, skills, resume and JD similarity score. And also you must speculate, explore, adapt, close on the candidate candidate. The 
+                phone number, education, skills, resume and JD similarity score(it is calculate based on this steps {algoritm}. Provide only score, no other words).
+                And also you must speculate, explore, adapt, close on the candidate candidate. The 
                 result will be JSON serializable dictionary as shown in this example: {sample}. Must be JSON serializable. 
                 """,
             },
