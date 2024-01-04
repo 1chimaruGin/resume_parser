@@ -72,7 +72,7 @@ class APIHandler:
         """
         algoritm = \
         """
-        Scoring Algorithm:
+        Compare the resume with the job description and score the resume based on the following criteria:
         Skills Match (25 points):
         - Keywords: 10 * (Number of Keywords Matched / Total Keywords)
         - Technical Skills: 7 * (Number of Technical Skills Matched / Total Technical Skills)
@@ -134,7 +134,7 @@ class APIHandler:
                 "content": f"""
                 I'm a recruiter. I am looking for a person who is capable for this job description : {job_description}. 
                 Match this job description with applied resume. Analyaze his/her ability. You must find the name, email, 
-                phone number, education, skills, resume and JD similarity score(it is calculate based on this steps {algoritm}. Provide only score, no other words).
+                phone number, education, skills, resume and job description match score(it is calculate based on this steps {algoritm}. Provide only score, no other words).
                 And also you must speculate, explore, adapt, close on the candidate candidate. The 
                 result will be JSON serializable dictionary as shown in this example: {sample}. Must be JSON serializable. 
                 """,
