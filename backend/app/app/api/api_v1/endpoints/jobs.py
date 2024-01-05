@@ -133,29 +133,30 @@ async def create_application(
             continue
         new_resumes.append(resume)
         new_resume_file_names.append(file_name)
-    try:
-        details = process_resume(new_resumes, new_resume_file_names, jds[0], 6)
-        for k, detail in details.items():
-            if detail == "Error":
-                send_email(
-                    "admin@sorci.ai",
-                    current_user.email,
-                    subject="Application failed",
-                    message=f"""
-                    Your application {k} has failed to process!
+    if len(new_resumes) > 0:
+        try:
+            details = process_resume(new_resumes, new_resume_file_names, jds[0], 6)
+            for k, detail in details.items():
+                if detail == "Error":
+                    send_email(
+                        "admin@sorci.ai",
+                        current_user.email,
+                        subject="Application failed",
+                        message=f"""
+                        Your application {k} has failed to process!
 
-                    Best regards,
-                    Sorci.ai Team
-                    """
+                        Best regards,
+                        Sorci.ai Team
+                        """
+                    )
+                    continue
+                obj_in = schemas.ApplicationCreate(**detail)
+                # Create the application
+                crud.application.create_with_owner(
+                    db=db, obj_in=obj_in, owner_id=current_user.id
                 )
-                continue
-            obj_in = schemas.ApplicationCreate(**detail)
-            # Create the application
-            crud.application.create_with_owner(
-                db=db, obj_in=obj_in, owner_id=current_user.id
-            )
-    except Exception:
-        return HTTPException(status_code=400, detail="Error processing resume!")
+        except Exception:
+            return HTTPException(status_code=400, detail="Error processing resume!")
     send_email(
         "admin@sorci.ai",
         current_user.email,
