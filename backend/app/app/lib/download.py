@@ -3,7 +3,7 @@ import numpy as np
 from typing import List
 
 
-def justify_text(text, width: int = 100):
+def justify_text(text, width: int = 90):
     words = text.split()
     lines, current_line = [], ""
     for word in words:
@@ -24,72 +24,53 @@ def add_text(
     ly: int = 50,
     height: int = 40,
     font: int = cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
+    f_size: float = 0.8,
 ):
     for line in lines:
-        cv2.putText(image, line, (lx, ly), font, 0.8, (0, 0, 0), lineType=cv2.LINE_AA)
+        cv2.putText(image, line, (lx, ly), font, f_size, (0, 0, 0), lineType=cv2.LINE_AA)
         ly += height
     return image, ly
 
 
 def download_pdf(
     records,
-    template: str = "/app/app/lib/images/sorci.png",
+    template: str = "images/sorci.png",
     bg: str = "/app/app/lib/images/bg.png",
     info: str = "/app/app/lib/images/info.png",
 ):
 
-    image = cv2.imread(bg)
-    template = cv2.imread(template)
-    info = cv2.imread(info)
+    image = cv2.imread(template)
+    image, ly = add_text(image, ["NAME: " + records['name']], lx=40, ly=60, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
+    image, ly = add_text(image, ["EMAIL: " + records['email']], lx=40, ly=ly + 10, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
+    image, ly = add_text(image, ["PHONE: " + records['phone']], lx=40, ly=ly + 10, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
 
-    info, ly = add_text(
-        info,
-        ["Name: " + records["name"]],
-        lx=40,
-        ly=40,
-        height=10,
-        font=cv2.FONT_HERSHEY_COMPLEX,
-    )
-    info, ly = add_text(
-        info,
-        ["Email: " + records["email"]],
-        lx=40,
-        ly=ly + 20,
-        height=10,
-        font=cv2.FONT_HERSHEY_COMPLEX,
-    )
-    info, ly = add_text(
-        info,
-        ["Phone: " + records["phone"]],
-        lx=40,
-        ly=ly + 20,
-        height=10,
-        font=cv2.FONT_HERSHEY_COMPLEX,
-    )
+    image, ly = add_text(image, ["CANDIDATE REVIEW"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=1)
+    image, ly = add_text(image, justify_text(records['candidate_review'], 87), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
 
-    # Speculate
-    image, ly = add_text(image, ["Speculate: "], lx=50, ly=50)
-    image, ly = add_text(image, justify_text(records["speculate"]), lx=50, ly=ly + 20)
+    image, ly = add_text(image, ["NOTES FOR CONSIDERATION"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=1)
+    image, ly = add_text(image, justify_text(records['note_for_consideration'], 87), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
 
-    # Explore
-    image, ly = add_text(image, ["Explore: "], lx=50, ly=ly + 20)
-    image, ly = add_text(image, justify_text(records["explore"]), lx=50, ly=ly + 20)
+    lyt = ly
+    image, ly = add_text(image, ["SKILL MATCHING"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
+    image, ly = add_text(image, ["JOB DESCRIPTION"], lx=40, ly=ly + 20, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
 
-    # Adapt
-    image, ly = add_text(image, ["Adapt: "], lx=50, ly=ly + 20)
-    image, ly = add_text(image, justify_text(records["adapt"]), lx=50, ly=ly + 20)
+    for skill in records['skills']:
+        image, ly = add_text(image, justify_text("- " + skill, 30), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
 
-    # Close
-    image, ly = add_text(image, ["Close: "], lx=50, ly=ly + 20)
-    image, ly = add_text(image, justify_text(records["close"]), lx=50, ly=ly + 20)
+    image, ly = add_text(image, ["RELEVANT CERTIFICATIONS"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
+    for cert in records['certification']:
+        image, ly = add_text(image, justify_text("- " + cert, 300), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
 
-    x, y = 80, 500
-    template[y : y + image.shape[0], x : x + image.shape[1]] = image
+    image, ly = add_text(image, ["EDUCATION"], lx=400, ly=lyt + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
+    for edu in records['education']:
+        image, ly = add_text(image, justify_text(edu, 50), lx=400, ly=ly + 20, height=10, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
 
-    x, y = 22, 208
-    template[y : y + info.shape[0], x : x + info.shape[1]] = info
-    return template
+    image, ly = add_text(image, ["RECOMMENDATION"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
+    image, ly = add_text(image, justify_text(records['recommendation'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
 
+    image, ly = add_text(image, ["Next steps:"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
+    image, ly = add_text(image, justify_text(records['decision'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+    return image
 
 if __name__ == "__main__":
     image = download_pdf(
@@ -100,16 +81,24 @@ if __name__ == "__main__":
             "education": ["Indian Institute of Technology - Mumbai"],
             "skills": [
                 "Machine Learning",
+                "Natural Language Processing (NLP) and Text Mining",
+                "Big Data Handling",
+                "Data analysis",
+                "Database designing",
+                "Microsoft Azure cloud services",
+            ],
+            "certification": [
+                "Machine Learning",
                 "Natural Language Processing",
                 "Big Data Handling",
                 "Data analysis",
                 "Database designing",
                 "Microsoft Azure cloud services",
             ],
-            "speculate": "Alice Clark has over 20 years of experience in data handling, design, and development. She has worked with Microsoft Azure cloud services and has skills in Machine Learning, Natural Language Processing, and Big Data Handling. However, her resume does not mention any experience in image/video classification and recognition, image segmentation, object detection, OCR, graph neural networks, multimodal, unsupervised and self-supervised learning, etc.",
-            "explore": "Alice has worked as a Software Engineer at Microsoft. She has experience in data warehousing and business intelligence. She has also worked on Microsoft Azure cloud services like Document DB, SQL Azure, Stream Analytics, Event hub, Power BI, Web Job, Web App, Power BI, Azure data lake analytics (U-SQL).",
-            "adapt": "Alice seems to be adaptable as she has worked on various technologies and platforms. She is also willing to relocate anywhere.",
-            "close": "Alice Clark seems to be a strong candidate with extensive experience and a wide range of skills. However, she might need to learn and adapt to some specific technologies and areas mentioned in the job description. Her adaptability and willingness to learn can be a plus point.",
+            "candidate_review": "Alice Clark has over 20 years of experience in data handling, design, and development. She has worked with Microsoft Azure cloud services and has skills in Machine Learning, Natural Language Processing, and Big Data Handling. However, her resume does not mention any experience in image/video classification and recognition, image segmentation, object detection, OCR, graph neural networks, multimodal, unsupervised and self-supervised learning, etc.",
+            "note_for_consideration": "Alice has worked as a Software Engineer at Microsoft. She has experience in data warehousing and business intelligence. She has also worked on Microsoft Azure cloud services like Document DB, SQL Azure, Stream Analytics, Event hub, Power BI, Web Job, Web App, Power BI, Azure data lake analytics (U-SQL).",
+            "recommendation": "Alice seems to be adaptable as she has worked on various technologies and platforms. She is also willing to relocate anywhere.",
+            "decision": "Alice Clark seems to be a strong candidate with extensive experience and a wide range of skills. However, she might need to learn and adapt to some specific technologies and areas mentioned in the job description. Her adaptability and willingness to learn can be a plus point.",
         }
     )
     cv2.imwrite("sample.png", image)

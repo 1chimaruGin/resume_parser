@@ -66,10 +66,10 @@ class APIHandler:
                         "achievement": ["xyz", "abc"],
                         "spelling_check_error_percentage": 0.003,
                         "score": 0.72,
-                        "speculate": "speculate the candiate resume",
-                        "explore": "explore the candidate's resume",
-                        "adapt": "check if the candidate is adaptable",
-                        "close": "your thought about the candidate",
+                        "candidate_review": "Alice Clark has over 20 years of experience in data handling, design, and development. She has worked with Microsoft Azure cloud services and has skills in Machine Learning, Natural Language Processing, and Big Data Handling. However, her resume does not mention any experience in image/video classification and recognition, image segmentation, object detection, OCR, graph neural networks, multimodal, unsupervised and self-supervised learning, etc.",
+                        "note_for_consideration": "Alice has worked as a Software Engineer at Microsoft. She has experience in data warehousing and business intelligence. She has also worked on Microsoft Azure cloud services like Document DB, SQL Azure, Stream Analytics, Event hub, Power BI, Web Job, Web App, Power BI, Azure data lake analytics (U-SQL).",
+                        "recommendation": "Alice seems to be adaptable as she has worked on various technologies and platforms. She is also willing to relocate anywhere.",
+                        "decision": "She is a good candidate for the job. She has good experience in data handling, design, and development. She has worked with Microsoft Azure cloud services and has skills in Machine Learning, Natural Language Processing, and Big Data Handling. However, her resume does not mention any experience in image/video classification and recognition, image segmentation, object detection, OCR, graph neural networks, multimodal, unsupervised and self-supervised learning, etc."
                  }
                  """
         message = [
@@ -78,9 +78,9 @@ class APIHandler:
                 "content": f"""
                 I'm a recruiter. I am looking for a person who is capable for this job description : {job_description}. 
                 Match this job description with applied resume: {resume}. Analyaze his/her ability. You must find the name, email, 
-                phone number, education, skills, technical skills, certification, experience, semantic frequency, location, achievement.
+                phone number, education, matched skills, matched technical skills, relevent certification, experience, semantic frequency, applicant's location, applicant's achievement.
                 And, judge the candidate score in match percentage 0.00 to 1.00 (the score should not be 0.85 or 0.75) based on the job description mainly on skills, technical skils, certification, experience, semantic frequency, location, achievement.
-                And also you must speculate, explore, adapt, close on the candidate candidate. The 
+                And also you must review, note for consideration, recommendation and make decision to move to next steps or not . The 
                 result will be JSON serializable dictionary as shown in this example: {sample}. Must be JSON serializable. 
                 """,
             },

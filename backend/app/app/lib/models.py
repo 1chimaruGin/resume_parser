@@ -46,7 +46,6 @@ class ModelHandler:
 
                 cropped_image = image.crop((x1, y1, x2, y2))
                 gray_image = cropped_image.convert("L")
-
                 # Extract text using EasyOCR
                 text = self.reader.readtext(np.array(gray_image))
                 text = " ".join([txt[1] for txt in text])
