@@ -43,7 +43,8 @@ class Matcher:
         outputs = execute_process(resumes, job_description, file_names, num_process)
         return outputs
 
-def process_resume(images: List[str], file_names: List[str], job_description: List[str], num_process: int = 4):
+def process_resume(images: List[str], file_names: List[str], 
+job_description: List[str], num_process: int = 4):
     start_time = time.time()
     outputs = execute_process(images, job_description, file_names, num_process)
     processed_outputs = {}
@@ -53,6 +54,8 @@ def process_resume(images: List[str], file_names: List[str], job_description: Li
         except json.decoder.JSONDecodeError:
             processed_outputs[file_name] = "Error"
             continue
+        if isinstance(details['job_title'], str):
+            details['job_title'] = [details['job_title']]
         processed_outputs[file_name] = {
             "name": details["name"],
             "score": details["score"],
