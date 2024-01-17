@@ -23,7 +23,7 @@ def add_text(
     lx: int = 50,
     ly: int = 50,
     height: int = 40,
-    font: int = cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
+    font: int = cv2.FONT_HERSHEY_SIMPLEX,
     f_size: float = 0.8,
 ):
     for line in lines:
@@ -45,31 +45,31 @@ def download_pdf(
     image, ly = add_text(image, ["PHONE: " + records['phone']], lx=40, ly=ly + 10, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
 
     image, ly = add_text(image, ["CANDIDATE REVIEW"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=1)
-    image, ly = add_text(image, justify_text(records['candidate_review'], 87), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+    image, ly = add_text(image, justify_text(records['candidate_review'], 87), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["NOTES FOR CONSIDERATION"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=1)
-    image, ly = add_text(image, justify_text(records['note_for_consideration'], 87), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+    image, ly = add_text(image, justify_text(records['note_for_consideration'], 87), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     lyt = ly
     image, ly = add_text(image, ["SKILL MATCHING"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
     image, ly = add_text(image, ["JOB DESCRIPTION"], lx=40, ly=ly + 20, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
 
     for skill in records['skills']:
-        image, ly = add_text(image, justify_text("- " + skill, 30), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+        image, ly = add_text(image, justify_text("- " + skill, 30), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["RELEVANT CERTIFICATIONS"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
     for cert in records['certification']:
-        image, ly = add_text(image, justify_text("- " + cert, 300), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+        image, ly = add_text(image, justify_text("- " + cert, 300), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["EDUCATION"], lx=400, ly=lyt + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
     for edu in records['education']:
-        image, ly = add_text(image, justify_text(edu, 50), lx=400, ly=ly + 20, height=10, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+        image, ly = add_text(image, justify_text(edu, 50), lx=400, ly=ly + 20, height=10, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["RECOMMENDATION"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
-    image, ly = add_text(image, justify_text(records['recommendation'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+    image, ly = add_text(image, justify_text(records['recommendation'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["Next steps:"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
-    image, ly = add_text(image, justify_text(records['decision'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SCRIPT_SIMPLEX, f_size=0.65)
+    image, ly = add_text(image, justify_text(records['decision'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
     return image
 
 if __name__ == "__main__":
