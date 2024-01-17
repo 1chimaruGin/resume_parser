@@ -34,7 +34,7 @@ def add_text(
 
 def download_pdf(
     records,
-    template: str = "images/sorci.png",
+    template: str = "/app/app/lib/images/sorci.png",
     bg: str = "/app/app/lib/images/bg.png",
     info: str = "/app/app/lib/images/info.png",
 ):
