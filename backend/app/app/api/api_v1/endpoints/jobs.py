@@ -10,11 +10,11 @@ from app.core.celery_app import celery_app
 from app.lib.mailer import send_email
 from app.lib.match import process_resume
 from app.lib.download import download_pdf
-from typing import Any, List
+from typing import Any, List, Union
 from sqlalchemy.orm import Session
 from pdf2image import convert_from_bytes
 from fastapi.responses import FileResponse
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status, Query
 
 
 router = APIRouter()
@@ -224,7 +224,7 @@ def read_application(
     return application
 
 
-@router.delete("/{id}", response_model=schemas.Application)
+@router.delete("/{id}")
 def delete_application(
     *,
     db: Session = Depends(deps.get_db),
@@ -247,7 +247,32 @@ def delete_application(
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
     application = crud.application.remove(db=db, id=id)
-    return application
+    return status.HTTP_200_OK
+
+@router.post("/batch_delete_applications")
+def batch_delete_applications(
+    *,
+    db: Session = Depends(deps.get_db),
+    ids: List[int], 
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Delete multiple applications.
+    """
+    if crud.user.is_admin(current_user):
+        applications = crud.application.get_multi(db=db)
+    elif crud.user.is_org(current_user):
+        applications = crud.application.get_multi_by_organization(
+            db=db, owner_id=current_user.id
+        )
+    else:
+        applications = crud.application.get_multi_by_owner(
+            db=db, owner_id=current_user.id
+        )
+    for application in applications:
+        if application.id in ids:
+            crud.application.remove(db=db, id=application.id)
+    return status.HTTP_200_OK
 
 
 @router.post("/send-emails/{top_k}")
