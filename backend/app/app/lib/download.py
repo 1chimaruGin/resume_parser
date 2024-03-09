@@ -5,7 +5,8 @@ from typing import List
 
 
 def justify_text(text, width: int = 90):
-    words = text.split()
+    words = ". ".join(text.split(".")[:2])
+    words = words.split()
     lines, current_line = [], ""
     for word in words:
         if len(current_line + word) + 1 <= width:
@@ -57,7 +58,7 @@ def download_exceled(
 
 def download_pdf(
     records,
-    template: str = "/app/app/lib/images/sorci.png",
+    template: str = "images/sorci.png",
     bg: str = "/app/app/lib/images/bg.png",
     info: str = "/app/app/lib/images/info.png",
 ):
@@ -77,11 +78,15 @@ def download_pdf(
     image, ly = add_text(image, ["SKILL MATCHING"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
     image, ly = add_text(image, ["JOB DESCRIPTION"], lx=40, ly=ly + 20, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
 
-    for skill in records['skills']:
+    skills = records['skills']
+    skills = skills[:len(skills) if len(skills) < 5 else 5]
+    for skill in skills:
         image, ly = add_text(image, justify_text("- " + skill, 30), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["RELEVANT CERTIFICATIONS"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
-    for cert in records['certification']:
+    certs = records['certification']
+    certs = certs[:len(certs) if len(certs) < 5 else 5]
+    for cert in certs:
         image, ly = add_text(image, justify_text("- " + cert, 300), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["EDUCATION"], lx=400, ly=lyt + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
@@ -96,7 +101,7 @@ def download_pdf(
     return image
 
 if __name__ == "__main__":
-    image = download_exceled(
+    image = download_pdf(
         {
             "name": "Alice Clark",
             "email": "alice@gmail.com",
@@ -124,4 +129,4 @@ if __name__ == "__main__":
             "decision": "Alice Clark seems to be a strong candidate with extensive experience and a wide range of skills. However, she might need to learn and adapt to some specific technologies and areas mentioned in the job description. Her adaptability and willingness to learn can be a plus point.",
         }
     )
-    # cv2.imwrite("sample.png", image)
+    cv2.imwrite("sample.png", image)
