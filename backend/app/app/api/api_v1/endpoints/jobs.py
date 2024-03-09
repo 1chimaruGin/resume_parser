@@ -9,7 +9,7 @@ from app import crud, models, schemas
 from app.core.celery_app import celery_app
 from app.lib.mailer import send_email
 from app.lib.match import process_resume
-from app.lib.download import download_pdf
+from app.lib.download import download_pdf, download_exceled
 from typing import Any, List, Union
 from sqlalchemy.orm import Session
 from pdf2image import convert_from_bytes
@@ -363,6 +363,24 @@ def download(
         headers = {"Content-Disposition": f"attachment; filename=score.pdf"}
         return FileResponse(pdf, media_type="application/pdf", headers=headers)
 
+    except Exception as e:
+        print(e)
+        return HTTPException(status_code=400, detail="Error downloading file")
+
+@router.post("/download_excel/{id}")
+def download_excel(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    application = crud.application.get(db=db, id=id)
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    try:
+        path = download_exceled(application.records, path='/tmp/')
+        headers = {"Content-Disposition": f"attachment; filename=record.xlsx"}
+        return FileResponse(path, media_type="application/vnd.ms-excel.", headers=headers)
     except Exception as e:
         print(e)
         return HTTPException(status_code=400, detail="Error downloading file")

@@ -1,4 +1,5 @@
 import cv2
+import pandas as pd
 import numpy as np
 from typing import List
 
@@ -30,6 +31,28 @@ def add_text(
         cv2.putText(image, line, (lx, ly), font, f_size, (0, 0, 0), lineType=cv2.LINE_AA)
         ly += height
     return image, ly
+
+def download_exceled(
+    records,
+    path,
+):
+    cols = ["Name", "Email", "Phone", "Education", "Skills", "Certification", "Candidate Review", "Note for Consideration", "Recommendation", "Decision"]
+    data = [
+        records["name"],
+        records["email"],
+        records["phone"],
+        ", ".join(records["education"]) if isinstance(records["education"], list) else records["education"],
+        ", ".join(records["skills"]) if isinstance(records["skills"], list) else records["skills"],
+        ", ".join(records["certification"]) if isinstance(records["certification"], list) else records["certification"],
+        records["candidate_review"],
+        records["note_for_consideration"],
+        records["recommendation"],
+        records["decision"],
+    ]
+    excel_path = f"{path}/records.xlsx"
+    df = pd.DataFrame([data], columns=cols)
+    df.to_excel(excel_path, index=False)
+    return excel_path
 
 
 def download_pdf(
@@ -73,7 +96,7 @@ def download_pdf(
     return image
 
 if __name__ == "__main__":
-    image = download_pdf(
+    image = download_exceled(
         {
             "name": "Alice Clark",
             "email": "alice@gmail.com",
@@ -101,4 +124,4 @@ if __name__ == "__main__":
             "decision": "Alice Clark seems to be a strong candidate with extensive experience and a wide range of skills. However, she might need to learn and adapt to some specific technologies and areas mentioned in the job description. Her adaptability and willingness to learn can be a plus point.",
         }
     )
-    cv2.imwrite("sample.png", image)
+    # cv2.imwrite("sample.png", image)
