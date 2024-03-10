@@ -34,26 +34,47 @@ def add_text(
     return image, ly
 
 def download_exceled(
-    records,
-    path,
+    applications,
+    path: str,
 ):
     cols = ["Name", "Email", "Phone", "Education", "Skills", "Certification", "Candidate Review", "Note for Consideration", "Recommendation", "Decision"]
-    data = [
-        records["name"],
-        records["email"],
-        records["phone"],
-        ", ".join(records["education"]) if isinstance(records["education"], list) else records["education"],
-        ", ".join(records["skills"]) if isinstance(records["skills"], list) else records["skills"],
-        ", ".join(records["certification"]) if isinstance(records["certification"], list) else records["certification"],
-        records["candidate_review"],
-        records["note_for_consideration"],
-        records["recommendation"],
-        records["decision"],
-    ]
+    data = []
+    for app in applications:
+        print("APP", app.records.keys())
+        data.append(
+            [
+                app.records["name"],
+                app.records.get("email", "Not provided"),
+                app.records.get("phone", "Not provided"),
+                ", ".join(app.records["education"]) if isinstance(app.records["education"], list) else app.records["education"],
+                ", ".join(app.records["skills"]) if isinstance(app.records["skills"], list) else app.records["skills"],
+                ", ".join(app.records["certification"]) if isinstance(app.records["certification"], list) else app.records["certification"],
+                app.records["candidate_review"],
+                app.records["note_for_consideration"],
+                app.records["recommendation"],
+                app.records["decision"],
+            ]
+        ) 
+    df = pd.DataFrame(data, columns=cols)
     excel_path = f"{path}/records.xlsx"
-    df = pd.DataFrame([data], columns=cols)
     df.to_excel(excel_path, index=False)
     return excel_path
+    # data = [
+    #     records["name"],
+    #     records["email"],
+    #     records["phone"],
+    #     ", ".join(records["education"]) if isinstance(records["education"], list) else records["education"],
+    #     ", ".join(records["skills"]) if isinstance(records["skills"], list) else records["skills"],
+    #     ", ".join(records["certification"]) if isinstance(records["certification"], list) else records["certification"],
+    #     records["candidate_review"],
+    #     records["note_for_consideration"],
+    #     records["recommendation"],
+    #     records["decision"],
+    # ]
+    # excel_path = f"{path}/records.xlsx"
+    # df = pd.DataFrame([data], columns=cols)
+    # df.to_excel(excel_path, index=False)
+    # return excel_path
 
 
 def download_pdf(
