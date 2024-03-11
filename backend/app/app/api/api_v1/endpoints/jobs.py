@@ -367,20 +367,38 @@ def download(
         print(e)
         return HTTPException(status_code=400, detail="Error downloading file")
 
-@router.post("/download_excel/{id}")
+# @router.post("/download_excel/{id}")
+# def download_excel(
+#     *,
+#     db: Session = Depends(deps.get_db),
+#     id: int,
+#     current_user: models.User = Depends(deps.get_current_active_user),
+# ) -> Any:
+#     application = crud.application.get(db=db, id=id)
+#     if not application:
+#         raise HTTPException(status_code=404, detail="Application not found")
+#     try:
+#         path = download_exceled(application.records, path='/tmp/', idx=id)
+#         headers = {"Content-Disposition": f"attachment; filename=record.xlsx"}
+#         return FileResponse(path, media_type="application/vnd.ms-excel.", headers=headers)
+#     except Exception as e:
+#         print(e)
+#         return HTTPException(status_code=400, detail="Error downloading file")
+
+@router.post("/download_excel/")
 def download_excel(
     *,
     db: Session = Depends(deps.get_db),
-    id: int,
+    id: List[int],
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
-    application = crud.application.get(db=db, id=id)
-    if not application:
-        raise HTTPException(status_code=404, detail="Application not found")
-    try:
-        path = download_exceled(application.records, path='/tmp/')
-        headers = {"Content-Disposition": f"attachment; filename=record.xlsx"}
-        return FileResponse(path, media_type="application/vnd.ms-excel.", headers=headers)
-    except Exception as e:
-        print(e)
-        return HTTPException(status_code=400, detail="Error downloading file")
+    apps = []
+    for i in id:
+        application = crud.application.get(db=db, id=i)
+        if not application:
+            raise HTTPException(status_code=404, detail="Application not found")
+        apps.append(application)
+    path = download_exceled(apps, path='/tmp/')
+    headers = {"Content-Disposition": f"attachment; filename=records.xlsx"}
+    return FileResponse(path, media_type="application/vnd.ms-excel.", headers=headers)
+    
