@@ -80,7 +80,7 @@ class APIHandler:
                 Match this job description with applied resume: {resume}. Analyaze his/her ability. You must find the name, email, 
                 phone number, education, matched skills, matched technical skills, relevent certification(certificate given by some school or organization such as from AWS, Google, NUS, ...), experience, semantic frequency, applicant's location, applicant's achievement.
                 And, judge the candidate score in match percentage 0.00 to 1.00 (the score should not be 0.85 or 0.75) based on the job description mainly on skills, technical skils, certification, experience, semantic frequency, location, achievement.
-                And also you must review, note for consideration, recommendation and make decision to move to next steps or not . The 
+                And also you must review, note for consideration, recommendation and make decision to move to next steps or not with just 3 lines for each topic. The 
                 result will be JSON serializable dictionary as shown in this example: {sample}. Must be JSON serializable. 
                 """,
             },

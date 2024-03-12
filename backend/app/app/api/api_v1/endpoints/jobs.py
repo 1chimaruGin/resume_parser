@@ -385,7 +385,7 @@ def download(
 #         print(e)
 #         return HTTPException(status_code=400, detail="Error downloading file")
 
-@router.post("/download_excel/")
+@router.post("/download_excel")
 def download_excel(
     *,
     db: Session = Depends(deps.get_db),

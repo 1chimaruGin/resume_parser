@@ -5,8 +5,7 @@ from typing import List
 
 
 def justify_text(text, width: int = 90):
-    words = ". ".join(text.split(".")[:2])
-    words = words.split()
+    words = text.split()
     lines, current_line = [], ""
     for word in words:
         if len(current_line + word) + 1 <= width:
@@ -37,7 +36,7 @@ def download_exceled(
     applications,
     path: str,
 ):
-    cols = ["Name", "Email", "Phone", "Education", "Skills", "Certification", "Candidate Review", "Note for Consideration", "Recommendation", "Decision"]
+    cols = ["Name", "Email", "Phone", "score", "Education", "Skills", "Certification", "Candidate Review", "Note for Consideration", "Recommendation", "Decision"]
     data = []
     for app in applications:
         print("APP", app.records.keys())
@@ -46,6 +45,7 @@ def download_exceled(
                 app.records["name"],
                 app.records.get("email", "Not provided"),
                 app.records.get("phone", "Not provided"),
+                app.records["score"],
                 ", ".join(app.records["education"]) if isinstance(app.records["education"], list) else app.records["education"],
                 ", ".join(app.records["skills"]) if isinstance(app.records["skills"], list) else app.records["skills"],
                 ", ".join(app.records["certification"]) if isinstance(app.records["certification"], list) else app.records["certification"],
@@ -86,8 +86,8 @@ def download_pdf(
 
     image = cv2.imread(template)
     image, ly = add_text(image, ["NAME: " + records['name']], lx=40, ly=60, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
-    image, ly = add_text(image, ["EMAIL: " + records['email']], lx=40, ly=ly + 10, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
-    image, ly = add_text(image, ["PHONE: " + records['phone']], lx=40, ly=ly + 10, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
+    image, ly = add_text(image, ["EMAIL: " + records.get('email', "Not provided")], lx=40, ly=ly + 10, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
+    image, ly = add_text(image, ["PHONE: " + records.get('phone', "Not provided")], lx=40, ly=ly + 10, height=25, font=cv2.FONT_HERSHEY_TRIPLEX)
 
     image, ly = add_text(image, ["CANDIDATE REVIEW"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=1)
     image, ly = add_text(image, justify_text(records['candidate_review'], 87), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
@@ -106,13 +106,13 @@ def download_pdf(
 
     image, ly = add_text(image, ["RELEVANT CERTIFICATIONS"], lx=40, ly=ly + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
     certs = records['certification']
-    certs = certs[:len(certs) if len(certs) < 5 else 5]
+    certs = certs[:len(certs) if len(certs) < 3 else 3]
     for cert in certs:
-        image, ly = add_text(image, justify_text("- " + cert, 300), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
+        image, ly = add_text(image, justify_text("- " + cert, 30), lx=40, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["EDUCATION"], lx=400, ly=lyt + 30, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
     for edu in records['education']:
-        image, ly = add_text(image, justify_text(edu, 50), lx=400, ly=ly + 20, height=10, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
+        image, ly = add_text(image, justify_text(edu, 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
     image, ly = add_text(image, ["RECOMMENDATION"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
     image, ly = add_text(image, justify_text(records['recommendation'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
