@@ -36,10 +36,9 @@ def download_exceled(
     applications,
     path: str,
 ):
-    cols = ["Name", "Email", "Phone", "score", "Education", "Skills", "Certification", "Candidate Review", "Note for Consideration", "Recommendation", "Decision"]
+    cols = ["Name", "Email", "Phone", "score", "Education", "Skills", "Certification", "Candidate Review", "Note for Consideration", "Summary"]
     data = []
     for app in applications:
-        print("APP", app.records.keys())
         data.append(
             [
                 app.records["name"],
@@ -51,8 +50,7 @@ def download_exceled(
                 ", ".join(app.records["certification"]) if isinstance(app.records["certification"], list) else app.records["certification"],
                 app.records["candidate_review"],
                 app.records["note_for_consideration"],
-                app.records["recommendation"],
-                app.records["decision"],
+                app.records["summary"],
             ]
         ) 
     df = pd.DataFrame(data, columns=cols)
@@ -114,11 +112,11 @@ def download_pdf(
     for edu in records['education']:
         image, ly = add_text(image, justify_text(edu, 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
-    image, ly = add_text(image, ["RECOMMENDATION"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
-    image, ly = add_text(image, justify_text(records['recommendation'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
+    image, ly = add_text(image, ["SUMMARY"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
+    image, ly = add_text(image, justify_text(records['summary'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
 
-    image, ly = add_text(image, ["Next steps:"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
-    image, ly = add_text(image, justify_text(records['decision'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
+    # image, ly = add_text(image, ["Next steps:"], lx=400, ly=ly + 40, height=10, font=cv2.FONT_HERSHEY_TRIPLEX, f_size=0.75)
+    # image, ly = add_text(image, justify_text(records['decision'], 50), lx=400, ly=ly + 20, height=20, font=cv2.FONT_HERSHEY_SIMPLEX, f_size=0.5)
     return image
 
 if __name__ == "__main__":
@@ -146,8 +144,8 @@ if __name__ == "__main__":
             ],
             "candidate_review": "Alice Clark has over 20 years of experience in data handling, design, and development. She has worked with Microsoft Azure cloud services and has skills in Machine Learning, Natural Language Processing, and Big Data Handling. However, her resume does not mention any experience in image/video classification and recognition, image segmentation, object detection, OCR, graph neural networks, multimodal, unsupervised and self-supervised learning, etc.",
             "note_for_consideration": "Alice has worked as a Software Engineer at Microsoft. She has experience in data warehousing and business intelligence. She has also worked on Microsoft Azure cloud services like Document DB, SQL Azure, Stream Analytics, Event hub, Power BI, Web Job, Web App, Power BI, Azure data lake analytics (U-SQL).",
-            "recommendation": "Alice seems to be adaptable as she has worked on various technologies and platforms. She is also willing to relocate anywhere.",
-            "decision": "Alice Clark seems to be a strong candidate with extensive experience and a wide range of skills. However, she might need to learn and adapt to some specific technologies and areas mentioned in the job description. Her adaptability and willingness to learn can be a plus point.",
+            "summary": "Alice seems to be adaptable as she has worked on various technologies and platforms. She is also willing to relocate anywhere.",
+            # "decision": "Alice Clark seems to be a strong candidate with extensive experience and a wide range of skills. However, she might need to learn and adapt to some specific technologies and areas mentioned in the job description. Her adaptability and willingness to learn can be a plus point.",
         }
     )
     cv2.imwrite("sample.png", image)
