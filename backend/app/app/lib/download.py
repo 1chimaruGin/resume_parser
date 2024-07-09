@@ -50,7 +50,7 @@ def download_exceled(
                 ", ".join(app.records["certification"]) if isinstance(app.records["certification"], list) else app.records["certification"],
                 app.records["candidate_review"],
                 app.records["note_for_consideration"],
-                app.records["summary"],
+                app.records.get("summary", "Not provided"),
             ]
         ) 
     df = pd.DataFrame(data, columns=cols)
