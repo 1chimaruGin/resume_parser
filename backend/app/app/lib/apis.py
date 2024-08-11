@@ -17,8 +17,8 @@ class APIHandler:
     def __init__(self, vision_api: vision = vision, text_api: openai = openai) -> None:
         self.vision_api = vision_api.ImageAnnotatorClient()
         self.text_api = text_api
-        self.text_api.organization = "org-Dl6EDMxJ4HCZdOD7Wr7te5pe"
-        self.text_api.api_key = "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"
+        self.text_api.organization = "org-qg7At3zvOBUl178au57jREEw"
+        self.text_api.api_key = "sk-g29y_j3Dkz6jwNET4A4O6RoYMyX3Ap3wEMEZQeiC2uT3BlbkFJ2FbAlgAtEw-sYzlXPFsm5eASbH3WkppQ8QWtIC-38A"
 
     def extract_text(self, encoded_images: List[str]) -> str:
         """
@@ -86,8 +86,8 @@ class APIHandler:
             {"role": "user", "content": f"Judge the candidate resume on the basis of job description."},
         ]
         response = self.text_api.ChatCompletion.create(
-            # model="gpt-3.5-turbo",  # gpt-3.5-turbo
-            model="gpt-4",
+            model="gpt-3.5-turbo",  # gpt-3.5-turbo
+            # model="gpt-4",
             messages=message,
             temperature=0.1,
             max_tokens=1000,

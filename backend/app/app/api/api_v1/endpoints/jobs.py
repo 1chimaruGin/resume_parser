@@ -151,7 +151,6 @@ async def create_application(
                     )
                     continue
                 obj_in = schemas.ApplicationCreate(**detail)
-                # Create the application
                 crud.application.create_with_owner(
                     db=db, obj_in=obj_in, owner_id=current_user.id
                 )

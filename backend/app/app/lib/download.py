@@ -41,15 +41,15 @@ def download_exceled(
     for app in applications:
         data.append(
             [
-                app.records["name"],
+                app.records.get("name", "Not provided"),
                 app.records.get("email", "Not provided"),
                 app.records.get("phone", "Not provided"),
-                app.records["score"],
-                ", ".join(app.records["education"]) if isinstance(app.records["education"], list) else app.records["education"],
-                ", ".join(app.records["skills"]) if isinstance(app.records["skills"], list) else app.records["skills"],
-                ", ".join(app.records["certification"]) if isinstance(app.records["certification"], list) else app.records["certification"],
-                app.records["candidate_review"],
-                app.records["note_for_consideration"],
+                app.records.get("score", "Not provided"),
+                ", ".join(app.records.get("education", "not provided")) if isinstance(app.records.get("education", "not provided"), list) else app.records.get("education", "not provided"),
+                ", ".join(app.records.get("skills", "not provided")) if isinstance(app.records.get("skills", "not provided"), list) else app.records.get("skills", "not provided"),
+                ", ".join(app.records.get("certification", "not provided")) if isinstance(app.records.get("certification", "not provided"), list) else app.records.get("certification", "not provided"),
+                app.records.get("candidate_review", "Not provided"),
+                app.records.get("note_for_consideration", "not provided"),
                 app.records.get("summary", "Not provided"),
             ]
         ) 

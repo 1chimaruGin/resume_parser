@@ -41,6 +41,7 @@ class Matcher:
             str: Details of resume.
         """
         outputs = execute_process(resumes, job_description, file_names, num_process)
+        print(f'[INFO] Processing 4 ')
         return outputs
 
 def process_resume(images: List[str], file_names: List[str], 
